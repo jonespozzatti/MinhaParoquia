@@ -1,0 +1,2 @@
+INSERT INTO `paroquia` (`id`, `cnpj`, `data_atualizacao`, `data_criacao`, `localizacao`, `razao_social`, `endereco_id`) 
+VALUES (NULL, '53608206000165', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'Santa Izabel', NULL);
