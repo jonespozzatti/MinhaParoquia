@@ -12,7 +12,7 @@ public class PastoralDTO {
 	private String descricao;
 	private String email;
 	private Long paroquiaId;
-	
+	private Long coordenadorPastoralId;
 	
 	public Long getId() {
 		return id;
@@ -42,17 +42,24 @@ public class PastoralDTO {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
+	@NotNull(message = "Deve ser selecionado a paroquia da Pastoral.")
 	public Long getParoquiaId() {
 		return paroquiaId;
 	}
 	public void setParoquiaId(Long paroquiaId) {
 		this.paroquiaId = paroquiaId;
 	}
+	@NotNull(message = "Deve ser selecionado o coordenador da Pastoral.")
+	public Long getCoordenadorPastoralId() {
+		return coordenadorPastoralId;
+	}
+	public void setCoordenadorPastoralId(Long coordenadorPastoralId) {
+		this.coordenadorPastoralId = coordenadorPastoralId;
+	}
 	@Override
 	public String toString() {
 		return "PastoralDTO [id=" + id + ", nome=" + nome + ", descricao=" + descricao + ", email=" + email
-				+ ", paroquiaId=" + paroquiaId + "]";
+				+ ", paroquiaId=" + paroquiaId + ", coordenadorPastoralId=" + coordenadorPastoralId +"]";
 	}
 	
 }

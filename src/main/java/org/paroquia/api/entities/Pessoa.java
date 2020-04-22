@@ -19,7 +19,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.ManyToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -51,7 +52,8 @@ public class Pessoa implements Serializable {
 	private Date dataCriacao;
 	private Date dataAtualizacao;
 	private SexoEnum sexo;
-	private List<Pastoral> pastorais = new ArrayList<>(0);
+	private Pessoa responsavel;
+	private List<PessoaPastoral> pastorais = new ArrayList<>(0);
 
 	public Pessoa() {
 	}
@@ -171,12 +173,22 @@ public class Pessoa implements Serializable {
 	public void setSexo(SexoEnum sexo) {
 		this.sexo = sexo;
 	}
-	@ManyToMany(mappedBy = "pessoas")
-	public List<Pastoral> getPastorais() {
+	
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "responsavel_id", nullable = true)
+	public Pessoa getResponsavel() {
+		return responsavel;
+	}
+	public void setResponsavel(Pessoa responsavel) {
+		this.responsavel = responsavel;
+	}
+
+	@OneToMany(mappedBy = "pessoa", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	public List<PessoaPastoral> getPastorais() {
 		return pastorais;
 	}
 
-	public void setPastorais(List<Pastoral> pastorais) {
+	public void setPastorais(List<PessoaPastoral> pastorais) {
 		this.pastorais = pastorais;
 	}
 	

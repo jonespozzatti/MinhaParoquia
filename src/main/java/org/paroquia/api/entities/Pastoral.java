@@ -13,9 +13,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -34,7 +33,7 @@ public class Pastoral implements Serializable {
 	private Date dataCriacao;
 	private Date dataAtualizacao;
 	private Paroquia paroquia;
-	private List<Pessoa> pessoas= new ArrayList<>(0);
+	private List<PessoaPastoral> participantes= new ArrayList<>(0);
 
 	public Pastoral() {
 	}
@@ -93,7 +92,8 @@ public class Pastoral implements Serializable {
 	}
 
 	
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)	
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = false)
+	@JoinColumn(name="paroquia_id", nullable = false)
 	public Paroquia getParoquia() {
 		return paroquia;
 	}
@@ -102,16 +102,13 @@ public class Pastoral implements Serializable {
 		this.paroquia = paroquia;
 	}
 	
-	@ManyToMany
-	@JoinTable(name= "pastoral_pessoa", 
-	        joinColumns = @JoinColumn(name="pastoral_id"),
-	        inverseJoinColumns = @JoinColumn(name="pessoa_id"))
-	public List<Pessoa> getPessoas() {
-		return pessoas;
+	@OneToMany(mappedBy = "pastoral", fetch = FetchType.LAZY,  cascade = CascadeType.ALL, orphanRemoval = true)
+	public List<PessoaPastoral> getParticipantes() {
+		return participantes;
 	}
 
-	public void setPessoas(List<Pessoa> pessoas) {
-		this.pessoas = pessoas;
+	public void setParticipantes(List<PessoaPastoral> participantes) {
+		this.participantes = participantes;
 	}
 
 	@PreUpdate

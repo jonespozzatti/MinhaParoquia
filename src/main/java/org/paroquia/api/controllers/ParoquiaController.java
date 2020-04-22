@@ -18,6 +18,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,6 +33,39 @@ public class ParoquiaController {
 	@Autowired
 	private ParoquiaService paroquiaService;
 	
+	/**
+	 * Atualiza os dados de uma paróquia.
+	 * 
+	 * @param id
+	 * @param paroquiaDto
+	 * @param result
+	 * @return ResponseEntity<Response<ParoquiaDTO>>
+	 * @throws NoSuchAlgorithmException
+	 */
+	@PutMapping(value = "/{id}")
+	public ResponseEntity<Response<ParoquiaDTO>> atualizar(@PathVariable("id") Long id,
+			@Valid @RequestBody ParoquiaDTO paroquiaDto, BindingResult result) throws NoSuchAlgorithmException {
+		log.info("Atualizando paróquia: {}", paroquiaDto.toString());
+		Response<ParoquiaDTO> response = new Response<ParoquiaDTO>();
+
+		Optional<Paroquia> paroquia = this.paroquiaService.buscarPorId(id);
+		if (!paroquia.isPresent()) {
+			result.addError(new ObjectError("paroquia", "Paróquia não encontrada."));
+		}
+
+		this.atualizarDadosParoquia(paroquia.get(), paroquiaDto, result);
+
+		if (result.hasErrors()) {
+			log.error("Erro validando paróquia: {}", result.getAllErrors());
+			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
+			return ResponseEntity.badRequest().body(response);
+		}
+
+		this.paroquiaService.salvar(paroquia.get());
+		response.setData(this.converterParaParoquiaDto(paroquia.get()));
+
+		return ResponseEntity.ok(response);
+	}
 	
 	@PostMapping
 	public ResponseEntity<Response<ParoquiaDTO>> cadastrar(@Valid @RequestBody ParoquiaDTO paroquiaDTO,
@@ -73,6 +107,33 @@ public class ParoquiaController {
 		return ResponseEntity.ok(response);
 	}
 
+	
+	/**
+	 * Atualiza os dados da paróquia com base nos dados encontrados no DTO.
+	 * 
+	 * @param paroquia
+	 * @param paroquiaDTO
+	 * @param result
+	 * @throws NoSuchAlgorithmException
+	 */
+	private void atualizarDadosParoquia(Paroquia paroquia, ParoquiaDTO paroquiaDTO, BindingResult result)
+			throws NoSuchAlgorithmException {
+		paroquia.setRazaoSocial(paroquiaDTO.getRazaoSocial());
+
+		if (!paroquia.getEmail().equals(paroquiaDTO.getEmail())) {
+			this.paroquiaService.buscarPorEmail(paroquiaDTO.getEmail())
+					.ifPresent(func -> result.addError(new ObjectError("email", "Email já existente.")));
+			paroquia.setEmail(paroquiaDTO.getEmail());
+		}
+		if (!paroquia.getCnpj().equals(paroquiaDTO.getCnpj())) {
+			this.paroquiaService.buscarPorCNPJ(paroquiaDTO.getCnpj())
+					.ifPresent(func -> result.addError(new ObjectError("CNPJ", "CNPJ já existente.")));
+			paroquia.setCnpj(paroquiaDTO.getCnpj());
+		}
+		paroquia.setEndereco(paroquiaDTO.getEndereco());
+		paroquia.setLocalizacao(paroquiaDTO.getLocalizacao());
+
+	}
 	
 	
 	/**

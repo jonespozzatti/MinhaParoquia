@@ -14,6 +14,7 @@ public class PastoralService {
 	@Autowired
 	private PastoralRepository pastoralRepository;
 	
+	
 	public Pastoral salvar(Pastoral pastoral) {
 		return pastoralRepository.save(pastoral);
 	}

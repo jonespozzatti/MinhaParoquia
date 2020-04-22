@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.paroquia.api.entities.Pessoa;
 import org.paroquia.api.security.JwtUserFactory;
-import org.paroquia.api.security.services.PessoaService;
+import org.paroquia.api.sevices.PessoaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

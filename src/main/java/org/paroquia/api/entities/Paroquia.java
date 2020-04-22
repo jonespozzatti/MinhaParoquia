@@ -32,7 +32,7 @@ public class Paroquia implements Serializable {
 	private Date dataAtualizacao;
 	private Endereco endereco;
 	private String localizacao;
-	private List<Pastoral> pastorais = new ArrayList<>(0);
+	private List<Pastoral> pastorais = new ArrayList<>();
 	
 	public Paroquia() {
 	}

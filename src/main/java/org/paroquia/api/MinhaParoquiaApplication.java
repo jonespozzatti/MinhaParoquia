@@ -57,7 +57,7 @@ public class MinhaParoquiaApplication {
 			usuario.setPerfil(PerfilEnum.ROLE_USUARIO);
 			usuario.setSenha(SenhaUtils.gerarBCrypt("123456"));
 			usuario.setNome("Joao");
-			usuario.setCpf("03138358969");
+			usuario.setCpf("03138358968");
 			usuario.setDataNasc(new Date());
 			
 			this.pessoaRepository.save(usuario);
