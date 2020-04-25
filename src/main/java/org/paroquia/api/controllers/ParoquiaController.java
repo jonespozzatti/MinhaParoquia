@@ -77,7 +77,7 @@ public class ParoquiaController {
 		log.info("Atualizando paróquia: {}", paroquiaDto.toString());
 		Response<ParoquiaDTO> response = new Response<ParoquiaDTO>();
 
-		Optional<Paroquia> paroquia = this.paroquiaService.buscarPorId(id);
+		Optional<Paroquia> paroquia = this.paroquiaService.buscarParoquiaPorId(id);
 		if (!paroquia.isPresent()) {
 			result.addError(new ObjectError("paroquia", "Paróquia não encontrada."));
 		}
@@ -107,7 +107,7 @@ public class ParoquiaController {
 		
 		log.info("Buscando paroquia por ID: {}", id);
 		Response<ParoquiaDTO> response = new Response<ParoquiaDTO>();
-		Optional<Paroquia> paroquia = paroquiaService.buscarPorId(id);
+		Optional<Paroquia> paroquia = paroquiaService.buscarParoquiaPorId(id);
 		
 		if (!paroquia.isPresent()) {
 			log.info("Paroquia não encontrada para o ID: {}", id);

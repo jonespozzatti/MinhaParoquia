@@ -268,7 +268,7 @@ public class PastoralController {
 		pastoral.setId(pastoralDTO.getId());
 
 		if (pastoralDTO.getParoquiaId() != null) {
-			Optional<Paroquia> paroquia = this.paroquiaService.buscarPorId(pastoralDTO.getParoquiaId());
+			Optional<Paroquia> paroquia = this.paroquiaService.buscarParoquiaPorId(pastoralDTO.getParoquiaId());
 			if (paroquia.isPresent()) {
 				pastoral.setParoquia(paroquia.get());
 			} else {
