@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 @NamedQueries({
 	@NamedQuery(name = "PessoaPastoralRepository.findByPastoralId", 
 			query = "SELECT pespas FROM PessoaPastoral pespas WHERE pespas.pastoral.id = :pastoralId"),	
+	@NamedQuery(name = "PessoaPastoralRepository.findByPessoaId", 
+	query = "SELECT pespas FROM PessoaPastoral pespas WHERE pespas.pessoa.id = :pessoaId"),
 	@NamedQuery(name="PessoaPastoralRepository.findByPessoaIdAndPastoralId",
 			query = "SELECT pespas FROM PessoaPastoral pespas WHERE pespas.pastoral.id = :pastoralId AND pespas.pessoa.id = :pessoaId") 
 	})
@@ -23,6 +25,8 @@ public interface PessoaPastoralRepository extends JpaRepository<PessoaPastoral, 
 	Optional<PessoaPastoral> findById(Long id);
 	
 	List<PessoaPastoral> findByPastoralId(@Param("pastoralId") Long pastoralId);
+	
+	List<PessoaPastoral> findByPessoaId(@Param("pessoaId") Long pessoId);
 	
 	Optional<PessoaPastoral> findByPessoaIdAndPastoralId(@Param("pessoaId") Long pessoaId, @Param("pastoralId") Long pastoralId);
 	

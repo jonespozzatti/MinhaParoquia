@@ -22,11 +22,20 @@ public class PessoaPastoralService {
 	public List<PessoaPastoral> listarPorPastoral(Long pastoralId){
 		return pessoaPastoralRepository.findByPastoralId(pastoralId);
 	}
+	
+	public List<PessoaPastoral> listarPorPessoa(Long pessoaId){
+		return pessoaPastoralRepository.findByPessoaId(pessoaId);
+	}
+	
 	public PessoaPastoral salvar(PessoaPastoral pessoaPastoral) {
 		return pessoaPastoralRepository.save(pessoaPastoral);
 	}
 	
 	public Optional<PessoaPastoral> buscarPorPessoaAndPastoral(Long pessoaId, Long pastoralId) {
 		return pessoaPastoralRepository.findByPessoaIdAndPastoralId(pessoaId, pastoralId);		
+	}
+	
+	public void remover(Long id) {
+		this.pessoaPastoralRepository.deleteById(id);
 	}
 }

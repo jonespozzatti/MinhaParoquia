@@ -57,60 +57,41 @@ public class PastoralController {
 	}
 	
 	/**
-	 * Retorna a listagem de pastorais de um paróquia.
+	 * Cadastra uma nova pastoral de um paróquia.
 	 * 
-	 * @param paroquiaID
-	 * @return ResponseEntity<Response<ParoquiaDTO>>
+	 * @param pastoralDTO
+	 * @return ResponseEntity<Response<PessoaPastoralDTO>>
 	 */
-	@GetMapping(value = "/paroquia/{paroquiaId}")
-	public ResponseEntity<Response<List<PastoralDTO>>> listarPorParoquiaId(
-			@PathVariable("paroquiaId") Long paroquiaId) {
-		log.info("Buscando pastoral por ID da paróquia: {}", paroquiaId);
-		Response<List<PastoralDTO>> response = new Response<List<PastoralDTO>>();
-
+	@PostMapping
+	public ResponseEntity<Response<PessoaPastoralDTO>> cadastrar(@Valid @RequestBody PastoralDTO pastoralDTO,
+			BindingResult result) {
 		
-		List<Pastoral> pastorais = this.pastoralService.listarPorParoquia(paroquiaId);
+		log.info("Cadastrando Pastoral: {}", pastoralDTO.toString());
+		Response<PessoaPastoralDTO> response = new Response<PessoaPastoralDTO>();
 		
-		if (pastorais.isEmpty()) {
-			log.info("Nenhuma pastoral encontrada para a paróquia de id: {}", paroquiaId);
-			response.getErrors().add("Nenhuma pastoral encontrada para a paróquia de id " + paroquiaId);
+		validarDadosExistentes(pastoralDTO, result);
+		Pastoral pastoral = this.converterDtoParaPastoral(pastoralDTO, result);
+		
+		if(result.hasErrors()) {
+			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
 			return ResponseEntity.badRequest().body(response);
 		}
-		
-		List<PastoralDTO> pastoraisDto = new ArrayList<PastoralDTO>(0);
-		for (Pastoral pastoral : pastorais) {
-			pastoraisDto.add(this.converterParaPastoralDto(pastoral));			
+		Optional<Pessoa> pessoaCoordenador = null;
+		if (pastoralDTO.getCoordenadorPastoralId() != null) {
+			pessoaCoordenador = this.pessoaService.buscarPorId(pastoralDTO.getCoordenadorPastoralId());
+			if (!pessoaCoordenador.isPresent()) {
+				result.addError(new ObjectError("pastoral", "Coordenador não encontrado."));
+				
+			} 
 		}
+		PessoaPastoral pessoaPastoral = popularPessoaPastoral(pastoral, pessoaCoordenador);
+		pessoaPastoral = this.pessoaPastoralService.salvar(pessoaPastoral);
 		
-		response.setData(pastoraisDto);
+		response.setData(this.converterParaPessoaPastoralDto(pessoaPastoral));
+		
 		return ResponseEntity.ok(response);
 	}
 	
-	/**
-	 * Retorna uma pastoral pelo id.
-	 * 
-	 * @param id
-	 * @return ResponseEntity<Response<PastoralDTO>>
-	 */
-	@GetMapping(value = "/{id}")
-	public ResponseEntity<Response<PastoralDTO>> obter(
-			@PathVariable("id") Long id) {
-		log.info("Buscando pastoral por ID: {}", id);
-		Response<PastoralDTO> response = new Response<PastoralDTO>();
-		
-		Optional<Pastoral> pastoral = this.pastoralService.buscarPorId(id);
-		
-		if (!pastoral.isPresent()) {
-			log.info("Pastoral não encontrada para o ID: {}", id);
-			response.getErrors().add("Pastoral não encontrada para o id " + id);
-			return ResponseEntity.badRequest().body(response);
-		}
-
-		
-		response.setData(this.converterParaPastoralDto(pastoral.get()));
-					
-		return ResponseEntity.ok(response);
-	}
 	/**
 	 * Atualiza os dados de uma pastoral.
 	 * 
@@ -146,40 +127,61 @@ public class PastoralController {
 	}
 	
 	/**
-	 * Cadastra uma nova pastoral de um paróquia.
+	 * Retorna uma pastoral pelo id.
 	 * 
-	 * @param pastoralDTO
-	 * @return ResponseEntity<Response<PessoaPastoralDTO>>
+	 * @param id
+	 * @return ResponseEntity<Response<PastoralDTO>>
 	 */
-	@PostMapping
-	public ResponseEntity<Response<PessoaPastoralDTO>> cadastrar(@Valid @RequestBody PastoralDTO pastoralDTO,
-			BindingResult result) {
+	@GetMapping(value = "/{id}")
+	public ResponseEntity<Response<PastoralDTO>> obter(
+			@PathVariable("id") Long id) {
+		log.info("Buscando pastoral por ID: {}", id);
+		Response<PastoralDTO> response = new Response<PastoralDTO>();
 		
-		log.info("Cadastrando Pastoral: {}", pastoralDTO.toString());
-		Response<PessoaPastoralDTO> response = new Response<PessoaPastoralDTO>();
+		Optional<Pastoral> pastoral = this.pastoralService.buscarPorId(id);
 		
-		validarDadosExistentes(pastoralDTO, result);
-		Pastoral pastoral = this.converterDtoParaPastoral(pastoralDTO, result);
-		
-		if(result.hasErrors()) {
-			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
+		if (!pastoral.isPresent()) {
+			log.info("Pastoral não encontrada para o ID: {}", id);
+			response.getErrors().add("Pastoral não encontrada para o id " + id);
 			return ResponseEntity.badRequest().body(response);
 		}
-		Optional<Pessoa> pessoaCoordenador = null;
-		if (pastoralDTO.getCoordenadorPastoralId() != null) {
-			pessoaCoordenador = this.pessoaService.buscarPorId(pastoralDTO.getCoordenadorPastoralId());
-			if (!pessoaCoordenador.isPresent()) {
-				result.addError(new ObjectError("pastoral", "Coordenador não encontrado."));
-				
-			} 
-		}
-		PessoaPastoral pessoaPastoral = popularPessoaPastoral(pastoral, pessoaCoordenador);
-		pessoaPastoral = this.pessoaPastoralService.salvar(pessoaPastoral);
+
 		
-		response.setData(this.converterParaPessoaPastoralDto(pessoaPastoral));
-		
+		response.setData(this.converterParaPastoralDto(pastoral.get()));
+					
 		return ResponseEntity.ok(response);
 	}
+	
+	/**
+	 * Retorna a listagem de pastorais de um paróquia.
+	 * 
+	 * @param paroquiaID
+	 * @return ResponseEntity<Response<ParoquiaDTO>>
+	 */
+	@GetMapping(value = "/paroquia/{paroquiaId}")
+	public ResponseEntity<Response<List<PastoralDTO>>> listarPorParoquiaId(
+			@PathVariable("paroquiaId") Long paroquiaId) {
+		log.info("Buscando pastoral por ID da paróquia: {}", paroquiaId);
+		Response<List<PastoralDTO>> response = new Response<List<PastoralDTO>>();
+
+		
+		List<Pastoral> pastorais = this.pastoralService.listarPorParoquia(paroquiaId);
+		
+		if (pastorais.isEmpty()) {
+			log.info("Nenhuma pastoral encontrada para a paróquia de id: {}", paroquiaId);
+			response.getErrors().add("Nenhuma pastoral encontrada para a paróquia de id " + paroquiaId);
+			return ResponseEntity.badRequest().body(response);
+		}
+		
+		List<PastoralDTO> pastoraisDto = new ArrayList<PastoralDTO>(0);
+		for (Pastoral pastoral : pastorais) {
+			pastoraisDto.add(this.converterParaPastoralDto(pastoral));			
+		}
+		
+		response.setData(pastoraisDto);
+		return ResponseEntity.ok(response);
+	}
+	
 	
 	/**
 	 * Atualiza os dados da pastoral com base nos dados encontrados no DTO.

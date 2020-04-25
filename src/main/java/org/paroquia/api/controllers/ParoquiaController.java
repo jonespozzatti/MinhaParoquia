@@ -34,6 +34,35 @@ public class ParoquiaController {
 	private ParoquiaService paroquiaService;
 	
 	/**
+	 * Cadastra uma nova paróquia.
+	 * 
+	 * @param paroquiaDTO
+	 * @return ResponseEntity<Response<ParoquiaDTO>>
+	 */
+	
+	@PostMapping
+	public ResponseEntity<Response<ParoquiaDTO>> cadastrar(@Valid @RequestBody ParoquiaDTO paroquiaDTO,
+			BindingResult result) {
+		
+		log.info("Cadastrando Paroquia: {}", paroquiaDTO.toString());
+		Response<ParoquiaDTO> response = new Response<ParoquiaDTO>();
+		
+		validarDadosExistentes(paroquiaDTO, result);
+		Paroquia paroquia = this.converterDtoParaParoquia(paroquiaDTO, result);
+		
+		if(result.hasErrors()) {
+			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
+			return ResponseEntity.badRequest().body(response);
+		}
+		
+		Paroquia paroquiaSalva = this.paroquiaService.salvar(paroquia);
+		
+		response.setData(this.converterParaParoquiaDto(paroquiaSalva));
+		
+		return ResponseEntity.ok(response);
+	}
+	
+	/**
 	 * Atualiza os dados de uma paróquia.
 	 * 
 	 * @param id
@@ -67,28 +96,12 @@ public class ParoquiaController {
 		return ResponseEntity.ok(response);
 	}
 	
-	@PostMapping
-	public ResponseEntity<Response<ParoquiaDTO>> cadastrar(@Valid @RequestBody ParoquiaDTO paroquiaDTO,
-			BindingResult result) {
-		
-		log.info("Cadastrando Paroquia: {}", paroquiaDTO.toString());
-		Response<ParoquiaDTO> response = new Response<ParoquiaDTO>();
-		
-		validarDadosExistentes(paroquiaDTO, result);
-		Paroquia paroquia = this.converterDtoParaParoquia(paroquiaDTO, result);
-		
-		if(result.hasErrors()) {
-			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
-			return ResponseEntity.badRequest().body(response);
-		}
-		
-		Paroquia paroquiaSalva = this.paroquiaService.salvar(paroquia);
-		
-		response.setData(this.converterParaParoquiaDto(paroquiaSalva));
-		
-		return ResponseEntity.ok(response);
-	}
-	
+	/**
+	 * Retorna uma paróquia pelo id.
+	 * 
+	 * @param id
+	 * @return ResponseEntity<Response<ParoquiaDTO>>
+	 */
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<Response<ParoquiaDTO>> obter(@PathVariable("id") Long id) {
 		

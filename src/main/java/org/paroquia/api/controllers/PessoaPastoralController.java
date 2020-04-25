@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,28 +43,6 @@ public class PessoaPastoralController {
 	@Autowired
 	private PessoaService pessoaService;
 	
-	/**
-	 * Retorna a listagem de pessoas e pastorais de uma pastoral.
-	 * 
-	 * @param pastoralID
-	 * @return ResponseEntity<Response<PessoaPastoralDTO>>
-	 */
-	@GetMapping(value = "/pastoral/{pastoralId}")
-	public ResponseEntity<Response<List<PessoaPastoralDTO>>> listarPorPastoral(
-			@PathVariable("pastoralId") Long pastoralId) {
-		log.info("Buscando pessoapastoral por ID da pastoral: {}", pastoralId);
-		Response<List<PessoaPastoralDTO>> response = new Response<List<PessoaPastoralDTO>>();
-
-		
-		List<PessoaPastoral> listaPessoasPastoral = this.pessoaPastoralService.listarPorPastoral(pastoralId);
-		
-		response.setData(this.converterParaListaPessoaPastoralDto(listaPessoasPastoral));
-		
-		return ResponseEntity.ok(response);
-	}
-	
-	
-
 	/**
 	 * Cadastra uma nova pastoral de um paróquia.
 	 * 
@@ -98,7 +77,69 @@ public class PessoaPastoralController {
 		return ResponseEntity.ok(response);
 	}
 
+	/**
+	 * Remove uma pessoa da postoral por ID.
+	 * 
+	 * @param id
+	 * @return ResponseEntity<Response<String>>
+	 */
+	@DeleteMapping(value = "/{id}")
+	public ResponseEntity<Response<String>> remover(@PathVariable("id") Long id) {
+		log.info("Removendo uma pessoa da postoral: {}", id);
+		Response<String> response = new Response<String>();
+		Optional<PessoaPastoral> pessoaPastoral = this.pessoaPastoralService.buscarPorId(id);
 
+		if (!pessoaPastoral.isPresent()) {
+			log.info("Erro ao remover uma pessoa da pastoral ID: {} ser inválido.", id);
+			response.getErrors().add("Erro ao remover uma pessoa da pastoral. Registro não encontrado para o id " + id);
+			return ResponseEntity.badRequest().body(response);
+		}
+
+		this.pessoaPastoralService.remover(id);
+		return ResponseEntity.ok(new Response<String>());
+	}
+	
+
+	/**
+	 * Retorna a listagem de pessoas de uma pastoral.
+	 * 
+	 * @param pastoralID
+	 * @return ResponseEntity<Response<PessoaPastoralDTO>>
+	 */
+	@GetMapping(value = "/pastoral/{pastoralId}")
+	public ResponseEntity<Response<List<PessoaPastoralDTO>>> listarPessoasPorPastoral(
+			@PathVariable("pastoralId") Long pastoralId) {
+		log.info("Buscando pessoapastoral por ID da pastoral: {}", pastoralId);
+		Response<List<PessoaPastoralDTO>> response = new Response<List<PessoaPastoralDTO>>();
+
+		
+		List<PessoaPastoral> listaPessoasPastoral = this.pessoaPastoralService.listarPorPastoral(pastoralId);
+		
+		response.setData(this.converterParaListaPessoaPastoralDto(listaPessoasPastoral));
+		
+		return ResponseEntity.ok(response);
+	}
+	
+	/**
+	 * Retorna a listagem de pastoral de uma pessoa.
+	 * 
+	 * @param pessoaID
+	 * @return ResponseEntity<Response<PessoaPastoralDTO>>
+	 */
+	@GetMapping(value = "/pessoa/{pessoaID}")
+	public ResponseEntity<Response<List<PessoaPastoralDTO>>> listarPastoraisPorPessoa(
+			@PathVariable("pessoaID") Long pessoaID) {
+		log.info("Buscando pessoapastoral por ID da pessoa: {}", pessoaID);
+		Response<List<PessoaPastoralDTO>> response = new Response<List<PessoaPastoralDTO>>();
+
+		
+		List<PessoaPastoral> listaPastoraisPessoa = this.pessoaPastoralService.listarPorPessoa(pessoaID);
+		
+		response.setData(this.converterParaListaPessoaPastoralDto(listaPastoraisPessoa));
+		
+		return ResponseEntity.ok(response);
+	}
+	
 
 	private void validarDadosParaIncluir(BindingResult result, Optional<Pessoa> pessoa, Optional<Pastoral> pastoral) {
 		if (!pessoa.isPresent()) {

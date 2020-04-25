@@ -26,6 +26,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -84,9 +85,103 @@ public class PessoaController {
 		
 		pessoaPastoral = this.pessoaPastoralService.salvar(pessoaPastoral);
 		
-		response.setData(this.converterParaPessoaDto(pessoaPastoral));
+		response.setData(this.converterParaPessoaDto(pessoaPastoral.getPessoa()));
 		
 		return ResponseEntity.ok(response);
+	}
+	
+	/**
+	 * Atualiza os dados de uma pessoa.
+	 * 
+	 * @param id
+	 * @param pessoaDto
+	 * @param result
+	 * @return ResponseEntity<Response<PessoaDTO>>
+	 * @throws NoSuchAlgorithmException
+	 */
+	@PutMapping(value = "/{id}")
+	public ResponseEntity<Response<PessoaDTO>> atualizar(@PathVariable("id") Long id,
+			@Valid @RequestBody PessoaDTO pessoaDTO, BindingResult result) throws NoSuchAlgorithmException {
+		log.info("Atualizando Pessoa: {}", pessoaDTO.toString());
+		Response<PessoaDTO> response = new Response<PessoaDTO>();
+
+		Optional<Pessoa> pessoa = this.pessoaService.buscarPorId(id);
+		if (!pessoa.isPresent()) {
+			result.addError(new ObjectError("pessoa", "Pessoa não encontrada."));
+		}
+
+		this.atualizarDadosPessoa(pessoa.get(), pessoaDTO, result);
+
+		if (result.hasErrors()) {
+			log.error("Erro validando paróquia: {}", result.getAllErrors());
+			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
+			return ResponseEntity.badRequest().body(response);
+		}
+
+		this.pessoaService.salvar(pessoa.get());
+		response.setData(this.converterParaPessoaDto(pessoa.get()));
+
+		return ResponseEntity.ok(response);
+	}
+	
+	/**
+	 * Retorna uma pessoa pelo id.
+	 * 
+	 * @param id
+	 * @return ResponseEntity<Response<PessoaDTO>>
+	 */
+	@GetMapping(value = "/{id}")
+	public ResponseEntity<Response<PessoaDTO>> obter(
+			@PathVariable("id") Long id) {
+		log.info("Buscando pessoa por ID: {}", id);
+		Response<PessoaDTO> response = new Response<PessoaDTO>();
+		
+		Optional<Pessoa> pessoa = this.pessoaService.buscarPorId(id);
+		
+		if (!pessoa.isPresent()) {
+			log.info("Pessoa não encontrada para o ID: {}", id);
+			response.getErrors().add("Pessoa não encontrada para o id " + id);
+			return ResponseEntity.badRequest().body(response);
+		}
+
+		
+		response.setData(this.converterParaPessoaDto(pessoa.get()));
+					
+		return ResponseEntity.ok(response);
+	}
+	
+	/**
+	 * Atualiza os dados da pessoa com base nos dados encontrados no DTO.
+	 * 
+	 * @param pessoa
+	 * @param pessoaDTO
+	 * @param result
+	 * @throws NoSuchAlgorithmException
+	 */
+	private void atualizarDadosPessoa(Pessoa pessoa, PessoaDTO pessoaDTO, BindingResult result)
+			throws NoSuchAlgorithmException {
+		
+		pessoa.setCpf(pessoaDTO.getCpf());
+		
+		try {
+			pessoa.setDataNasc(pessoaDTO.getDataNascimetntoConvertida("yyyy-MM-dd"));
+		} catch (ParseException e) {
+			result.addError(new ObjectError("pessoa", "Data Inválida."));
+		}
+		
+		pessoa.setEmail(pessoaDTO.getEmail());
+		pessoa.setEndereco(pessoaDTO.getEndereco());
+		pessoa.setId(pessoaDTO.getId());
+		pessoa.setNome(pessoaDTO.getNome());
+		pessoa.setPerfil(pessoaDTO.getPerfil());
+		pessoa.setResponsavel(pessoaDTO.getResponsavel_id() != null ? 
+				pessoaService.buscarPorId(pessoaDTO.getResponsavel_id()).get() 
+				: null);
+		pessoa.setSenha(pessoaDTO.getSenha());
+		pessoa.setSexo(pessoaDTO.getSexo());
+		pessoa.setTelefoneCelular(pessoaDTO.getTelefoneCelular());
+		pessoa.setTelefoneFixo(pessoaDTO.getTelefoneFixo());
+
 	}
 	
 	/**
@@ -111,9 +206,8 @@ public class PessoaController {
 	 * @param pessoaPastoral
 	 * @return pessoaDto
 	 */
-	private PessoaDTO converterParaPessoaDto(PessoaPastoral pessoaPastoral) {
+	private PessoaDTO converterParaPessoaDto(Pessoa pessoa) {
 		PessoaDTO pessoaDto = new PessoaDTO();
-		Pessoa pessoa = pessoaPastoral.getPessoa();
 		pessoaDto.setId(pessoa.getId());
 		pessoaDto.setCpf(pessoa.getCpf());
 		pessoaDto.setDataNascString(pessoa.getDataNasc(), "yyyy-MM-dd");
