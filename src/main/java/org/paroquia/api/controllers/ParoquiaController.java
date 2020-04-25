@@ -107,7 +107,7 @@ public class ParoquiaController {
 		
 		log.info("Buscando paroquia por ID: {}", id);
 		Response<ParoquiaDTO> response = new Response<ParoquiaDTO>();
-		Optional<Paroquia> paroquia = paroquiaService.busarParoquiaPorId(id);
+		Optional<Paroquia> paroquia = paroquiaService.buscarParoquiaPorId(id);
 		
 		if (!paroquia.isPresent()) {
 			log.info("Paroquia não encontrada para o ID: {}", id);
