@@ -110,8 +110,8 @@ public class ParoquiaController {
 		Optional<Paroquia> paroquia = paroquiaService.buscarParoquiaPorId(id);
 		
 		if (!paroquia.isPresent()) {
-			log.info("Paroquia não encontrada para o ID: {}", id);
-			response.getErrors().add("Paroquia não encontrada para o ID " + id);
+			log.info("Paroquia nao encontrada para o ID: {}", id);
+			response.getErrors().add("Paroquia nao encontrada para o ID " + id);
 			return ResponseEntity.badRequest().body(response);
 		}
 		

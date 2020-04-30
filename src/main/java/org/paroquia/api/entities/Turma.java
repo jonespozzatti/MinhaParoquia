@@ -12,8 +12,10 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -32,7 +34,9 @@ public class Turma implements Serializable{
 	private Date dataCriacao;
 	private Date dataAtualizacao;
 	private Professor professor;
+	private Curso curso;
 	private List<Aluno> alunos;
+	private List<Noticia> noticias;
 	
 	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -83,8 +87,17 @@ public class Turma implements Serializable{
 	}
 	public void setDataAtualizacao(Date dataAtualizacao) {
 		this.dataAtualizacao = dataAtualizacao;
+	}	
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+	@JoinColumn(name="curso_id", nullable = false)
+	public Curso getCurso() {
+		return curso;
+	}
+	public void setCurso(Curso curso) {
+		this.curso = curso;
 	}
 	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+	@JoinColumn(name="professor_id", nullable = false)
 	public Professor getProfessor() {
 		return professor;
 	}
@@ -99,7 +112,13 @@ public class Turma implements Serializable{
 		this.alunos = alunos;
 	}
 	
-	
+	@OneToMany(mappedBy = "turma", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	public List<Noticia> getNoticias() {
+		return noticias;
+	}
+	public void setNoticias(List<Noticia> noticias) {
+		this.noticias = noticias;
+	}
 	@PreUpdate
     public void preUpdate() {
         dataAtualizacao = new Date();

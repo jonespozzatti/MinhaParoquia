@@ -92,7 +92,7 @@ public class Pastoral implements Serializable {
 	}
 
 	
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = false)
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name="paroquia_id", nullable = false)
 	public Paroquia getParoquia() {
 		return paroquia;

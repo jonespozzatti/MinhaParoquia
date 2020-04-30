@@ -47,7 +47,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return new JwtAuthenticationTokenFilter();
 	}
 
-	 @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
+	 @Bean(name = BeanIds.USER_DETAILS_SERVICE)
 	 @Override
 	 public AuthenticationManager authenticationManagerBean() throws Exception {
 	     return super.authenticationManagerBean();

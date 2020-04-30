@@ -72,10 +72,6 @@ public class PastoralController {
 		validarDadosExistentes(pastoralDTO, result);
 		Pastoral pastoral = this.converterDtoParaPastoral(pastoralDTO, result);
 		
-		if(result.hasErrors()) {
-			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
-			return ResponseEntity.badRequest().body(response);
-		}
 		Optional<Pessoa> pessoaCoordenador = null;
 		if (pastoralDTO.getCoordenadorPastoralId() != null) {
 			pessoaCoordenador = this.pessoaService.buscarPorId(pastoralDTO.getCoordenadorPastoralId());
@@ -84,6 +80,12 @@ public class PastoralController {
 				
 			} 
 		}
+		
+		if(result.hasErrors()) {
+			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
+			return ResponseEntity.badRequest().body(response);
+		}
+		
 		PessoaPastoral pessoaPastoral = popularPessoaPastoral(pastoral, pessoaCoordenador);
 		pessoaPastoral = this.pessoaPastoralService.salvar(pessoaPastoral);
 		
@@ -218,7 +220,6 @@ public class PastoralController {
 		dto.setEmail(pastoral.getEmail());
 		dto.setNome(pastoral.getNome());
 		dto.setParoquiaId(pastoral.getParoquia().getId());
-		
 
 		return dto;
 	}

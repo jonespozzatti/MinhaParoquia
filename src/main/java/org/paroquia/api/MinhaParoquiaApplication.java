@@ -54,25 +54,25 @@ public class MinhaParoquiaApplication {
 //			
 //			Paroquia p = this.paroquiaRespository.save(paroquia);
 //			
-			Pessoa usuario = new Pessoa();
-			usuario.setEmail("usuario@email.com");
-			usuario.setPerfil(PerfilEnum.ROLE_USUARIO);
-			usuario.setSenha(SenhaUtils.gerarBCrypt("123456"));
-			usuario.setNome("Joao");
-			usuario.setCpf("03138358968");
-			usuario.setDataNasc(new Date());
-			
-			this.pessoaRepository.save(usuario);
-			
-			Pessoa admin = new Pessoa();
-			admin.setEmail("admin@email.com");
-			admin.setPerfil(PerfilEnum.ROLE_ADMIN);
-			admin.setSenha(SenhaUtils.gerarBCrypt("123456"));
-			admin.setNome("Jones");
-			admin.setCpf("03138358969");
-			admin.setDataNasc(new Date());
-			
-			this.pessoaRepository.save(admin);
+//			Pessoa usuario = new Pessoa();
+//			usuario.setEmail("usuario@email.com");
+//			usuario.setPerfil(PerfilEnum.ROLE_USUARIO);
+//			usuario.setSenha(SenhaUtils.gerarBCrypt("123456"));
+//			usuario.setNome("Joao");
+//			usuario.setCpf("03138358968");
+//			usuario.setDataNasc(new Date());
+//			
+//			this.pessoaRepository.save(usuario);
+//			
+//			Pessoa admin = new Pessoa();
+//			admin.setEmail("admin@email.com");
+//			admin.setPerfil(PerfilEnum.ROLE_ADMIN);
+//			admin.setSenha(SenhaUtils.gerarBCrypt("123456"));
+//			admin.setNome("Jones");
+//			admin.setCpf("03138358969");
+//			admin.setDataNasc(new Date());
+//			
+//			this.pessoaRepository.save(admin);
 //
 //			List<Paroquia> paroquias = paroquiaRespository.findAll();
 //			paroquias.forEach(System.out::println);

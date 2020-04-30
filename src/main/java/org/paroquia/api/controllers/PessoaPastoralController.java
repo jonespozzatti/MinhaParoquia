@@ -61,13 +61,12 @@ public class PessoaPastoralController {
 		
 		validarDadosParaIncluir(result, pessoa, pastoral);
 		
-		
-		PessoaPastoral pessoaPastoral = this.converterDtoParaPessoaPastoral(pessoaPastoralDTO, pastoral, pessoa);
-		
 		if(result.hasErrors()) {
 			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
 			return ResponseEntity.badRequest().body(response);
 		}
+		
+		PessoaPastoral pessoaPastoral = this.converterDtoParaPessoaPastoral(pessoaPastoralDTO, pastoral, pessoa);
 		
 		
 		pessoaPastoral = this.pessoaPastoralService.salvar(pessoaPastoral);

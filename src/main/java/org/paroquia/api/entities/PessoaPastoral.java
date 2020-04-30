@@ -42,7 +42,7 @@ public class PessoaPastoral implements Serializable{
 		this.tipoParticipantePastoral = tipoParticipantePastoral;
 	}
 	
-	@ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+	@ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "pastoral_id", nullable = false)
 	public Pastoral getPastoral() {
 		return pastoral;
@@ -50,7 +50,7 @@ public class PessoaPastoral implements Serializable{
 	public void setPastoral(Pastoral pastoral) {
 		this.pastoral = pastoral;
 	}
-	@ManyToOne(optional = false,  fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)	
+	@ManyToOne(optional = false,  fetch = FetchType.EAGER, cascade = CascadeType.ALL)	
 	@JoinColumn(name = "pessoa_id", nullable = false)
 	public Pessoa getPessoa() {
 		return pessoa;
