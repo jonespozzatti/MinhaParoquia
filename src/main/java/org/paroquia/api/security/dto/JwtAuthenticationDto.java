@@ -1,27 +1,28 @@
 package org.paroquia.api.security.dto;
 
-import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.br.CPF;
 
 public class JwtAuthenticationDto {
 
-	private String email;
+	private String cpf;
 	private String senha;
 
 	public JwtAuthenticationDto() {
 	}
 
-	@NotEmpty(message = "Email não pode ser vazio.")
-	@Email(message = "Email inválido.")
-	public String getEmail() {
-		return email;
+	@NotNull(message = "CPF não pode ser vazio.")
+	@CPF (message = "CPF Invalido")
+	public String getCpf() {
+		return cpf;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
+	public void setcpf(String cpf) {
+		this.cpf = cpf;
 	}
 
-	@NotEmpty(message = "Senha não pode ser vazia.")
+	@NotNull(message = "CPF não pode ser vazio.")
 	public String getSenha() {
 		return senha;
 	}
@@ -32,7 +33,7 @@ public class JwtAuthenticationDto {
 
 	@Override
 	public String toString() {
-		return "JwtAuthenticationRequestDto [email=" + email + ", senha=" + senha + "]";
+		return "JwtAuthenticationRequestDto [cpf=" + cpf + ", senha=" + senha + "]";
 	}
 
 }

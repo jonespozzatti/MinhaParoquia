@@ -19,14 +19,14 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
 	private PessoaService usuarioService;
 
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<Pessoa> funcionario = usuarioService.buscarPorEmail(username);
+	public UserDetails loadUserByUsername(String cpf) throws UsernameNotFoundException {
+		Optional<Pessoa> paroquiano = usuarioService.buscarPorCPF(cpf);
 
-		if (funcionario.isPresent()) {
-			return JwtUserFactory.create(funcionario.get());
+		if (paroquiano.isPresent()) {
+			return JwtUserFactory.create(paroquiano.get());
 		}
 
-		throw new UsernameNotFoundException("Email não encontrado.");
+		throw new UsernameNotFoundException("CPF não encontrado.");
 	}
 
 }

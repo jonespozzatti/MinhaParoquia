@@ -60,17 +60,17 @@ public class AuthenticationController {
 		Response<TokenDto> response = new Response<TokenDto>();
 
 		if (result.hasErrors()) {
-			log.error("Erro validando lançamento: {}", result.getAllErrors());
+			log.error("Erro validando login: {}", result.getAllErrors());
 			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
 			return ResponseEntity.badRequest().body(response);
 		}
 
-		log.info("Gerando token para o email {}.", authenticationDto.getEmail());
+		log.info("Gerando token para o cpf {}.", authenticationDto.getCpf());
 		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(authenticationDto.getEmail(), authenticationDto.getSenha()));
+				new UsernamePasswordAuthenticationToken(authenticationDto.getCpf(), authenticationDto.getSenha()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationDto.getEmail());
+		UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationDto.getCpf());
 		String token = jwtTokenUtil.obterToken(userDetails);
 		response.setData(new TokenDto(token));
 
