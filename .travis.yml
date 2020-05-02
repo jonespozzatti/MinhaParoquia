@@ -3,3 +3,5 @@ jdk:
   - openjdk8
 flyway:
     enable: false
+spring:
+  profiles: test
