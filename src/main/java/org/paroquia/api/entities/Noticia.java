@@ -23,9 +23,10 @@ public class Noticia implements Serializable{
 	private Long id;
 	private String nome;
 	private String descricao;
+	private Integer periodo;
 	private Date dataCriacao;
 	private Date dataAtualizacao;
-	private Turma turma;
+	private Paroquia paroquia;
 	
 	
 	public Noticia() {
@@ -58,6 +59,14 @@ public class Noticia implements Serializable{
 	public void setDescricao(String descricao) {
 		this.descricao = descricao;
 	}
+	@Column(name = "periodo", nullable = false)
+	public Integer getPeriodo() {
+		return periodo;
+	}
+
+	public void setPeriodo(Integer periodo) {
+		this.periodo = periodo;
+	}
 
 	@Column(name = "data_criacao", nullable = false)
 	public Date getDataCriacao() {
@@ -78,19 +87,19 @@ public class Noticia implements Serializable{
 	}
 
 	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name="turma_id", nullable = false)
-	public Turma getTurma() {
-		return turma;
+	@JoinColumn(name="paroquia_id", nullable = false)
+	public Paroquia getParoquia() {
+		return paroquia;
 	}
 
-	public void setTurma(Turma turma) {
-		this.turma = turma;
+	public void setParoquia(Paroquia paroquia) {
+		this.paroquia = paroquia;
 	}
 
 	@Override
 	public String toString() {
 		return "Noticia [id=" + id + ", nome=" + nome + ", descricao=" + descricao + ", dataCriacao=" + dataCriacao
-				+ ", dataAtualizacao=" + dataAtualizacao + ", turma=" + turma + "]";
+				+ ", dataAtualizacao=" + dataAtualizacao + ", paroquia=" + paroquia + "]";
 	}
 
 }

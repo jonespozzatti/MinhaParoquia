@@ -7,9 +7,6 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -17,8 +14,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -26,15 +21,13 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import org.paroquia.api.enums.EstadoCivil;
 import org.paroquia.api.enums.SexoEnum;
 import org.paroquia.api.security.enums.PerfilEnum;
 
 
 @Entity
 @Table(name = "pessoa")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "tipo", length = 15, discriminatorType = DiscriminatorType.STRING)
-@DiscriminatorValue("PESSOA")
 public class Pessoa implements Serializable {
 
 	private static final long serialVersionUID = -5754246207015712518L;
@@ -53,11 +46,14 @@ public class Pessoa implements Serializable {
 	private Date dataAtualizacao;
 	private SexoEnum sexo;
 	private Pessoa responsavel;
-	private List<PessoaPastoral> pastorais = new ArrayList<>(0);
+	private EstadoCivil estadoCivil;
+	private List<Matricula> matriculas = new ArrayList<>();
+	private List<PessoaPastoral> pastorais = new ArrayList<>();
 
 	public Pessoa() {
 	}
-
+	
+	
 	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
 	public Long getId() {
@@ -182,6 +178,26 @@ public class Pessoa implements Serializable {
 	public void setResponsavel(Pessoa responsavel) {
 		this.responsavel = responsavel;
 	}
+	
+	@Column(name = "estadocivil")
+	public EstadoCivil getEstadoCivil() {
+		return estadoCivil;
+	}
+
+	public void setEstadoCivil(EstadoCivil estadoCivil) {
+		this.estadoCivil = estadoCivil;
+	}
+
+	@OneToMany(mappedBy = "pessoa", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	public List<Matricula> getMatriculas() {
+		return matriculas;
+	}
+
+
+	public void setMatriculas(List<Matricula> matriculas) {
+		this.matriculas = matriculas;
+	}
+
 
 	@OneToMany(mappedBy = "pessoa", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	public List<PessoaPastoral> getPastorais() {

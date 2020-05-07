@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import org.paroquia.api.dtos.DefaultDTO;
 import org.paroquia.api.dtos.ParoquiaDTO;
 import org.paroquia.api.entities.Paroquia;
 import org.paroquia.api.responses.Response;
@@ -116,6 +117,30 @@ public class ParoquiaController {
 		}
 		
 		response.setData(this.converterParaParoquiaDto(paroquia.get()));
+		
+		return ResponseEntity.ok(response);
+	}
+	
+	/**
+	 * Retorna a razao social da paróquia pelo id.
+	 * 
+	 * @param id
+	 * @return ResponseEntity<Response<ParoquiaDTO>>
+	 */
+	@GetMapping(value = "/nome/{id}")
+	public ResponseEntity<Response<DefaultDTO>> obterNome(@PathVariable("id") Long id) {
+		
+		log.info("Buscando paroquia por ID: {}", id);
+		Response<DefaultDTO> response = new Response<DefaultDTO>();
+		Optional<Paroquia> paroquia = paroquiaService.buscarParoquiaPorId(id);
+		
+		if (!paroquia.isPresent()) {
+			log.info("Paroquia nao encontrada para o ID: {}", id);
+			response.getErrors().add("Paroquia nao encontrada para o ID " + id);
+			return ResponseEntity.badRequest().body(response);
+		}
+		
+		response.setData(new DefaultDTO(paroquia.get().getId(), paroquia.get().getRazaoSocial()));
 		
 		return ResponseEntity.ok(response);
 	}

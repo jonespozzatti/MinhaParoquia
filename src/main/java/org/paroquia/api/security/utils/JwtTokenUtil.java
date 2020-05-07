@@ -27,7 +27,7 @@ public class JwtTokenUtil {
 	private Long expiration;
 
 	/**
-	 * Obtém o username (email) contido no token JWT.
+	 * Obtém o username (cpf) contido no token JWT.
 	 * 
 	 * @param token
 	 * @return String

@@ -33,6 +33,8 @@ public class Paroquia implements Serializable {
 	private Endereco endereco;
 	private String localizacao;
 	private List<Pastoral> pastorais = new ArrayList<>();
+	private List<Noticia> noticias= new ArrayList<>();
+	private List<Curso> cursos= new ArrayList<>();
 	
 	public Paroquia() {
 	}
@@ -115,6 +117,22 @@ public class Paroquia implements Serializable {
 
 	public void setPastorais(List<Pastoral> pastorais) {
 		this.pastorais = pastorais;
+	}
+	
+	@OneToMany(mappedBy = "paroquia", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	public List<Noticia> getNoticias() {
+		return noticias;
+	}
+	public void setNoticias(List<Noticia> noticias) {
+		this.noticias = noticias;
+	}
+	
+	@OneToMany(mappedBy = "paroquia", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	public List<Curso> getCursos() {
+		return cursos;
+	}
+	public void setCursos(List<Curso> cursos) {
+		this.cursos = cursos;
 	}
 	
 	@PreUpdate

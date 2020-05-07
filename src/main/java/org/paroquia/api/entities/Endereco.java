@@ -23,6 +23,7 @@ public class Endereco  implements Serializable{
 	private String bairro;
 	private String cidade;
 	private String uf;
+	private String numero;
 	
 	public Endereco() {
 		
@@ -71,5 +72,14 @@ public class Endereco  implements Serializable{
 	public void setUf(String uf) {
 		this.uf = uf;
 	}
+	@Column(name = "numero")
+	public String getNumero() {
+		return numero;
+	}
+
+	public void setNumero(String numero) {
+		this.numero = numero;
+	}
+	
 	
 }

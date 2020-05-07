@@ -5,16 +5,17 @@ CREATE TABLE `hibernate_sequence` (
     `next_val` INT(19),
     PRIMARY KEY (`sequence_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-     
-     create table curso (
+
+create table curso (
        id bigint not null,
        data_atualizacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
         data_criacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
         descricao varchar(255),
         nome varchar(255) not null,
+        paroquia_id bigint not null,
         primary key (id)
     )ENGINE=InnoDB DEFAULT CHARSET=utf8;
-alter table curso modify id bigint not null AUTO_INCREMENT;
+alter table curso modify id bigint not null AUTO_INCREMENT;     
     
 create table endereco (
        id bigint not null,
@@ -23,26 +24,22 @@ create table endereco (
         cidade varchar(255),
         logradouro varchar(255),
         uf varchar(255),
+        numero varchar(255),
         primary key (id)
     )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 alter table endereco modify id bigint not null AUTO_INCREMENT;
     
     create table matricula (
-       aluno_id bigint not null,
-        turma_id bigint not null
-    )ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-    create table noticia (
        id bigint not null,
-       data_atualizacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
-        data_criacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
-        descricao varchar(255) not null,
-        nome varchar(255) not null,
-        turma binary(255),
+        observacao varchar(255),
+        situacao_matricula integer,
+        tipo_pessoa integer not null,
+        pessoa_id bigint not null,
+        turma_id bigint not null,
         primary key (id)
     )ENGINE=InnoDB DEFAULT CHARSET=utf8;
-alter table noticia modify id bigint not null AUTO_INCREMENT;    
+alter table matricula modify id bigint not null AUTO_INCREMENT;
+
 
     create table paroquia (
        id bigint not null,
@@ -57,6 +54,18 @@ alter table noticia modify id bigint not null AUTO_INCREMENT;
     )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 alter table paroquia modify id bigint not null AUTO_INCREMENT;
  
+ create table noticia (
+       id bigint not null,
+       data_atualizacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
+        data_criacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
+        descricao varchar(255) not null,
+        nome varchar(255) not null,
+        turma binary(255),
+        paroquia_id bigint not null,
+        primary key (id)
+    )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+alter table noticia modify id bigint not null AUTO_INCREMENT; 
+
   
     create table pastoral (
        id bigint not null,
@@ -72,21 +81,19 @@ alter table pastoral modify id bigint not null AUTO_INCREMENT;
 
     
     create table pessoa (
-       tipo varchar(15) not null,
         id bigint not null,
         cpf varchar(255) not null,
-       data_atualizacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
+        data_atualizacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
         data_criacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
         datanasc timestamp not null DEFAULT CURRENT_TIMESTAMP,
         email varchar(255) not null,
+        estadocivil integer,
         nome varchar(255) not null,
         perfil varchar(255) not null,
         senha varchar(255) not null,
         sexo integer,
         telefonecelular varchar(255),
         telefonefixo varchar(255),
-        situacao varchar(255),
-        estadocivil integer,
         endereco_id bigint,
         responsavel_id bigint,
         primary key (id)
@@ -109,21 +116,28 @@ alter table pessoapastoral  modify id bigint not null AUTO_INCREMENT;
        data_atualizacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
         data_criacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
         data_inicio timestamp not null DEFAULT CURRENT_TIMESTAMP,
+        data_fim timestamp not null DEFAULT CURRENT_TIMESTAMP,
         descricao varchar(255) not null,
         dia_semana binary(255) not null,
         horarios binary(255) not null,
-        professor_id bigint,
+        curso_id bigint not null,
         primary key (id)
     )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 alter table turma modify id bigint not null AUTO_INCREMENT;
 
+alter table curso 
+       add constraint FK_paroquia_curso
+       foreign key (paroquia_id) 
+       references paroquia(id);
+
 alter table matricula 
        add constraint FK_turma_matricula 
        foreign key (turma_id) 
-       references turma(id);   
+       references turma(id); 
+         
 alter table matricula 
-       add constraint FK_aluno_matricula
-       foreign key (aluno_id) 
+       add constraint FK_pessoa_matricula
+       foreign key (pessoa_id) 
        references pessoa(id);
 
 alter table paroquia 
@@ -133,6 +147,11 @@ alter table paroquia
 
 alter table pastoral 
        add constraint FK_paroquia_pastoral
+       foreign key (paroquia_id) 
+       references paroquia(id);
+       
+alter table noticia 
+       add constraint FK_paroquia_noticia
        foreign key (paroquia_id) 
        references paroquia(id);
 
@@ -156,6 +175,7 @@ alter table pessoapastoral
        references pessoa(id);
 
 alter table turma 
-       add constraint FK_professor_turma
-       foreign key (professor_id) 
-       references pessoa(id);
+       add constraint FK_curso_turma
+       foreign key (curso_id) 
+       references curso(id);
+       

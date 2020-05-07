@@ -10,19 +10,24 @@ import org.paroquia.api.dtos.PessoaDTO;
 import org.paroquia.api.entities.Pastoral;
 import org.paroquia.api.entities.Pessoa;
 import org.paroquia.api.entities.PessoaPastoral;
+import org.paroquia.api.enums.SexoEnum;
 import org.paroquia.api.enums.TipoParticipantePastoral;
 import org.paroquia.api.responses.Response;
+import org.paroquia.api.security.enums.PerfilEnum;
 import org.paroquia.api.sevices.PastoralService;
 import org.paroquia.api.sevices.PessoaPastoralService;
 import org.paroquia.api.sevices.PessoaService;
+import org.paroquia.api.utils.SenhaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,8 +36,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 @RequestMapping("/api/pessoa")
+@CrossOrigin(origins = "*")
 public class PessoaController {
 	
 	private static final Logger log = LoggerFactory.getLogger(PessoaController.class);
@@ -61,6 +68,7 @@ public class PessoaController {
 	 * @param pessoaDTO
 	 * @return ResponseEntity<Response<PessoaDTO>>
 	 */
+
 	@PostMapping
 	public ResponseEntity<Response<PessoaDTO>> cadastrar(@Valid @RequestBody PessoaDTO pessoaDTO,
 			BindingResult result) {
@@ -125,9 +133,24 @@ public class PessoaController {
 	}
 	
 	/**
-	 * Retorna uma pessoa pelo id.
+	 * Retorna lista de sexos.
 	 * 
-	 * @param id
+	 * @param 
+	 * @return ResponseEntity<Response<List<SexoEnum>>>
+	 */
+	@GetMapping(value = "/sexo")
+	public ResponseEntity<Response<SexoEnum[]>> listarSexo() {
+		
+		Response<SexoEnum[]> response = new Response<SexoEnum[]>();		
+		response.setData(SexoEnum.values());
+					
+		return ResponseEntity.ok(response);
+	}
+	
+	/**
+	 * Retorna lista enum sexo.
+	 * 
+	 * @param 
 	 * @return ResponseEntity<Response<PessoaDTO>>
 	 */
 	@GetMapping(value = "/{id}")
@@ -251,11 +274,14 @@ public class PessoaController {
 		pessoa.setEndereco(pessoalDTO.getEndereco());
 		pessoa.setId(pessoalDTO.getId());
 		pessoa.setNome(pessoalDTO.getNome());
-		pessoa.setPerfil(pessoalDTO.getPerfil());
+		if(!StringUtils.isEmpty(pessoalDTO.getPerfil()))
+			pessoa.setPerfil(pessoalDTO.getPerfil());
+		else
+			pessoa.setPerfil(PerfilEnum.ROLE_USUARIO);
 		pessoa.setResponsavel(pessoalDTO.getResponsavel_id() != null ? 
 				pessoaService.buscarPorId(pessoalDTO.getResponsavel_id()).get() 
 				: null);
-		pessoa.setSenha(pessoalDTO.getSenha());
+		pessoa.setSenha(SenhaUtils.gerarBCrypt(pessoalDTO.getSenha()));
 		pessoa.setSexo(pessoalDTO.getSexo());
 		pessoa.setTelefoneCelular(pessoalDTO.getTelefoneCelular());
 		pessoa.setTelefoneFixo(pessoalDTO.getTelefoneFixo());

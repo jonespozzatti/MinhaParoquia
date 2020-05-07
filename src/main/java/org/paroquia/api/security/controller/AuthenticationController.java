@@ -55,6 +55,7 @@ public class AuthenticationController {
 	 * @throws AuthenticationException
 	 */
 	@PostMapping
+	@CrossOrigin
 	public ResponseEntity<Response<TokenDto>> gerarTokenJwt(@Valid @RequestBody JwtAuthenticationDto authenticationDto,
 			BindingResult result) throws AuthenticationException {
 		Response<TokenDto> response = new Response<TokenDto>();
@@ -83,6 +84,7 @@ public class AuthenticationController {
 	 * @param request
 	 * @return ResponseEntity<Response<TokenDto>>
 	 */
+	@CrossOrigin
 	@PostMapping(value = "/refresh")
 	public ResponseEntity<Response<TokenDto>> gerarRefreshTokenJwt(HttpServletRequest request) {
 		log.info("Gerando refresh token JWT.");

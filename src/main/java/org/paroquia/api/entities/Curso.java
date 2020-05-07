@@ -11,6 +11,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -27,6 +29,7 @@ public class Curso implements Serializable{
 	private String descricao;
 	private Date dataCriacao;
 	private Date dataAtualizacao;
+	private Paroquia paroquia;
 	private List<Turma> turmas;
 	
 	public Curso() {
@@ -76,11 +79,16 @@ public class Curso implements Serializable{
 	public void setDataAtualizacao(Date dataAtualizacao) {
 		this.dataAtualizacao = dataAtualizacao;
 	}
+	
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinColumn(name="paroquia_id", nullable = false)
+	public Paroquia getParoquia() {
+		return paroquia;
+	}
 
-	@PreUpdate
-    public void preUpdate() {
-        dataAtualizacao = new Date();
-    }
+	public void setParoquia(Paroquia paroquia) {
+		this.paroquia = paroquia;
+	}
 	
 	@OneToMany(mappedBy = "curso", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	public List<Turma> getTurmas() {
@@ -90,6 +98,11 @@ public class Curso implements Serializable{
 	public void setTurmas(List<Turma> turmas) {
 		this.turmas = turmas;
 	}
+	
+	@PreUpdate
+    public void preUpdate() {
+        dataAtualizacao = new Date();
+    }
      
     @PrePersist
     public void prePersist() {

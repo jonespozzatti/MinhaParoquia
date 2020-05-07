@@ -1,6 +1,7 @@
 package org.paroquia.api.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -13,7 +14,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
@@ -31,12 +31,11 @@ public class Turma implements Serializable{
 	private String[] diaSemana;
 	private String[] horarios;
 	private Date dataInicio;
+	private Date dataFim;
 	private Date dataCriacao;
 	private Date dataAtualizacao;
-	private Professor professor;
 	private Curso curso;
-	private List<Aluno> alunos;
-	private List<Noticia> noticias;
+	private List<Matricula> matriculas = new ArrayList<>();
 	
 	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -74,6 +73,13 @@ public class Turma implements Serializable{
 	public void setDataInicio(Date dataInicio) {
 		this.dataInicio = dataInicio;
 	}
+	@Column(name = "data_fim", nullable = false)
+	public Date getDataFim() {
+		return dataFim;
+	}
+	public void setDataFim(Date dataFim) {
+		this.dataFim = dataFim;
+	}
 	@Column(name = "data_criacao", nullable = false)
 	public Date getDataCriacao() {
 		return dataCriacao;
@@ -96,28 +102,13 @@ public class Turma implements Serializable{
 	public void setCurso(Curso curso) {
 		this.curso = curso;
 	}
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-	@JoinColumn(name="professor_id", nullable = false)
-	public Professor getProfessor() {
-		return professor;
-	}
-	public void setProfessor(Professor professor) {
-		this.professor = professor;
-	}
-	@ManyToMany(mappedBy = "turmas")
-	public List<Aluno> getAlunos() {
-		return alunos;
-	}
-	public void setAlunos(List<Aluno> alunos) {
-		this.alunos = alunos;
-	}
 	
-	@OneToMany(mappedBy = "turma", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	public List<Noticia> getNoticias() {
-		return noticias;
+	@OneToMany(mappedBy = "turma", fetch = FetchType.LAZY,  cascade = CascadeType.ALL, orphanRemoval = true)
+	public List<Matricula> getMatriculas() {
+		return matriculas;
 	}
-	public void setNoticias(List<Noticia> noticias) {
-		this.noticias = noticias;
+	public void setMatriculas(List<Matricula> matriculas) {
+		this.matriculas = matriculas;
 	}
 	@PreUpdate
     public void preUpdate() {

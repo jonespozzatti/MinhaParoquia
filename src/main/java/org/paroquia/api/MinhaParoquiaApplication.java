@@ -1,15 +1,7 @@
 package org.paroquia.api;
 
-import java.util.Date;
-
-import org.paroquia.api.entities.Endereco;
-import org.paroquia.api.entities.Paroquia;
-import org.paroquia.api.entities.Pastoral;
-import org.paroquia.api.entities.Pessoa;
 import org.paroquia.api.repositories.ParoquiaRespository;
 import org.paroquia.api.repositories.PessoaRepository;
-import org.paroquia.api.security.enums.PerfilEnum;
-import org.paroquia.api.utils.SenhaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
