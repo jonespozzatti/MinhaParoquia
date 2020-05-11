@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.paroquia.api.entities.PessoaPastoral;
 import org.paroquia.api.repositories.PessoaPastoralRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,6 +15,10 @@ public class PessoaPastoralService {
 
 	@Autowired
 	private PessoaPastoralRepository pessoaPastoralRepository;
+	
+	public Page<PessoaPastoral> listarPorPastoralPaginado(Long pastoralId, PageRequest pageRequest) {
+		return this.pessoaPastoralRepository.findByPastoralId(pastoralId, pageRequest);
+	}
 	
 	
 	public Optional<PessoaPastoral> buscarPorId(Long id) {

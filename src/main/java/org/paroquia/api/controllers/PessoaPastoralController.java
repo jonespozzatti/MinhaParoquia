@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import org.paroquia.api.dtos.MembroDTO;
 import org.paroquia.api.dtos.PessoaPastoralDTO;
 import org.paroquia.api.entities.Pastoral;
 import org.paroquia.api.entities.Pessoa;
@@ -17,6 +18,11 @@ import org.paroquia.api.sevices.PessoaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -26,6 +32,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -42,6 +49,9 @@ public class PessoaPastoralController {
 		
 	@Autowired
 	private PessoaService pessoaService;
+	
+	@Value("${paginacao.qtd_por_pagina}")
+	private int qtdPorPagina;
 	
 	/**
 	 * Cadastra uma nova pastoral de um paróquia.
@@ -119,6 +129,37 @@ public class PessoaPastoralController {
 		return ResponseEntity.ok(response);
 	}
 	
+	@GetMapping(value = "/pastoral/pag/{pastoralId}")
+	public ResponseEntity<Response<Page<MembroDTO>>> listarPessoasPorPastoralPaginado(
+			@PathVariable("pastoralId") Long pastoralId,
+			@RequestParam(value = "pag", defaultValue = "0") int pag,
+			@RequestParam(value = "ord", defaultValue = "id") String ord,
+			@RequestParam(value = "dir", defaultValue = "DESC") String dir) {
+		log.info("Buscando membros por ID do pastoral: {}, página: {}", pastoralId, pag);
+		Response<Page<MembroDTO>> response = new Response<Page<MembroDTO>>();
+
+				
+		Page<PessoaPastoral> pessoasPastoral = this.pessoaPastoralService
+				.listarPorPastoralPaginado(pastoralId, PageRequest.of(pag, this.qtdPorPagina, Sort.by(Direction.valueOf(dir),ord)));
+	
+		Page<MembroDTO> menbrosDto= (Page<MembroDTO>) pessoasPastoral
+				.map(membro -> this.converterParaMembrolDto(membro));
+
+		response.setData(menbrosDto);
+		return ResponseEntity.ok(response);
+	}
+	
+	
+	private MembroDTO converterParaMembrolDto(PessoaPastoral pessoaPastoral) {
+		MembroDTO membroDTO = new MembroDTO();
+		membroDTO.setId(Optional.of(pessoaPastoral.getId()));
+		membroDTO.setNome(pessoaPastoral.getPessoa().getNome());
+		membroDTO.setPessoaId(pessoaPastoral.getPessoa().getId());
+		membroDTO.setTipoParticipantePastoral(pessoaPastoral.getTipoParticipantePastoral());
+		membroDTO.setPastoralId(pessoaPastoral.getPastoral().getId());
+		return membroDTO;
+	}
+	
 	/**
 	 * Retorna a listagem de pastoral de uma pessoa.
 	 * 
@@ -138,6 +179,8 @@ public class PessoaPastoralController {
 		
 		return ResponseEntity.ok(response);
 	}
+	
+	
 	
 
 	private void validarDadosParaIncluir(BindingResult result, Optional<Pessoa> pessoa, Optional<Pastoral> pastoral) {
