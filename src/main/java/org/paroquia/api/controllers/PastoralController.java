@@ -164,7 +164,6 @@ public class PastoralController {
 	
 	/**
 	 * Retorna a listagem de pastorais de um paróquia.
-	 * 
 	 * @param paroquiaID
 	 * @return ResponseEntity<Response<ParoquiaDTO>>
 	 */
