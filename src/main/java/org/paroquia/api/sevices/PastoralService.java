@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.paroquia.api.entities.Pastoral;
 import org.paroquia.api.repositories.PastoralRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,6 +16,9 @@ public class PastoralService {
 	@Autowired
 	private PastoralRepository pastoralRepository;
 	
+	public Page<Pastoral> listarPastoralPorParoquiaPaginado(Long pastoralId, PageRequest pageRequest) {
+		return this.pastoralRepository.findByParoquiaId(pastoralId, pageRequest);
+	}
 	
 	public Pastoral salvar(Pastoral pastoral) {
 		return pastoralRepository.save(pastoral);

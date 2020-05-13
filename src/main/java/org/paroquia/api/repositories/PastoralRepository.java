@@ -8,6 +8,8 @@ import javax.persistence.NamedQuery;
 
 import org.paroquia.api.entities.Paroquia;
 import org.paroquia.api.entities.Pastoral;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,5 +24,6 @@ public interface PastoralRepository extends JpaRepository<Pastoral, Long>{
 	Optional<Pastoral> findById(Long id);
 	Pastoral findByEmail(String email);
 	List<Pastoral> findByParoquiaId(@Param("paroquiaId") Long paroquiaId);
+	Page<Pastoral> findByParoquiaId(@Param("paroquiaId") Long paroquiaId, Pageable pageable);
 	
 }

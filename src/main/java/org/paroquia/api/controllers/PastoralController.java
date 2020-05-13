@@ -22,6 +22,11 @@ import org.paroquia.api.sevices.PessoaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -31,6 +36,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -51,6 +57,8 @@ public class PastoralController {
 	@Autowired
 	private PessoaPastoralService pessoaPastoralService;
 	
+	@Value("${paginacao.qtd_por_pagina}")
+	private int qtdPorPagina;
 
 	public PastoralController() {
 		
@@ -180,6 +188,38 @@ public class PastoralController {
 			pastoraisDto.add(this.converterParaPastoralDto(pastoral));			
 		}
 		
+		response.setData(pastoraisDto);
+		return ResponseEntity.ok(response);
+	}
+	
+	/**
+	 * Retorna a listagem de pastorais de um paróquia paginada.
+	 * 
+	 * @param paroquiaID
+	 * @return ResponseEntity<Response<ParoquiaDTO>>
+	 */
+	@GetMapping(value = "/paroquia/pag/{paroquiaId}")
+	public ResponseEntity<Response<Page<PastoralDTO>>> listarPastoralPorParoquiaPaginado(
+			@PathVariable("paroquiaId") Long paroquiaId,
+			@RequestParam(value = "pag", defaultValue = "0") int pag,
+			@RequestParam(value = "ord", defaultValue = "nome") String ord,
+			@RequestParam(value = "dir", defaultValue = "ASC") String dir) {
+		log.info("Buscando pastoral por ID da paróquia: {}, página: {}", paroquiaId, pag);
+		Response<Page<PastoralDTO>> response = new Response<Page<PastoralDTO>>();
+
+		
+		Page<Pastoral> pastorais = this.pastoralService
+				.listarPastoralPorParoquiaPaginado(paroquiaId, PageRequest.of(pag, this.qtdPorPagina, Sort.by(Direction.valueOf(dir),ord)));
+		
+		if (pastorais.isEmpty()) {
+			log.info("Nenhuma pastoral encontrada para a paróquia de id: {}", paroquiaId);
+			response.getErrors().add("Nenhuma pastoral encontrada para a paróquia de id " + paroquiaId);
+			return ResponseEntity.badRequest().body(response);
+		}
+		
+		Page<PastoralDTO> pastoraisDto = (Page<PastoralDTO>) pastorais
+				.map(pastoral -> this.converterParaPastoralDto(pastoral));
+				
 		response.setData(pastoraisDto);
 		return ResponseEntity.ok(response);
 	}
