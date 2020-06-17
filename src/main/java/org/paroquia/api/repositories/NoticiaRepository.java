@@ -5,7 +5,7 @@ import java.util.List;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
-import org.paroquia.api.entities.Curso;
+import org.paroquia.api.entities.Noticia;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,12 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
 @NamedQueries({
-	@NamedQuery(name = "CursoRepository.findByParoquiaId", 
-			query = "SELECT curso FROM Curso curso WHERE curso.paroquia.id = :paroquiaId") })
-public interface CursoRepository extends JpaRepository<Curso, Long>{
+	@NamedQuery(name = "NoticiaRepository.findByParoquiaId", 
+			query = "SELECT noticia FROM Noticia noticia WHERE noticia.paroquia.id = :paroquiaId") })
+public interface NoticiaRepository extends JpaRepository<Noticia, Long>{
 	
-	List<Curso> findByParoquiaId(@Param("paroquiaId") Long paroquiaId);
-	Page<Curso> findByParoquiaId(@Param("paroquiaId") Long paroquiaId, Pageable pageable);
-	Curso findByNome(String nome);
-	
+	List<Noticia> findByParoquiaId(@Param("paroquiaId") Long paroquiaId);
+	Page<Noticia> findByParoquiaId(@Param("paroquiaId") Long paroquiaId, Pageable pageable);
+
 }

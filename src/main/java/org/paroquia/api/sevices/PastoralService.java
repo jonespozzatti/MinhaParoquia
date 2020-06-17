@@ -35,4 +35,8 @@ public class PastoralService {
 	public List<Pastoral> listarPorParoquia(Long paroquiaId){
 		return pastoralRepository.findByParoquiaId(paroquiaId);
 	}
+	
+	public void remover(Long id) {
+		pastoralRepository.deleteById(id);
+	}
 }

@@ -1,4 +1,5 @@
 package org.paroquia.api.sevices;
+import java.util.List;
 import java.util.Optional;
 
 import org.paroquia.api.entities.Pessoa;
@@ -28,5 +29,10 @@ public class PessoaService  {
 	
 	public Optional<Pessoa> buscarPorCPF(String cpf) {
 		return Optional.ofNullable(this.pessoaRepository.findByCpf(cpf));
+	}
+	
+	public List<Pessoa> listarPessoasNaoPertencemPastoral(Long pastoralId){
+		return pessoaRepository.listPessoasNaoPertencemPastoral(pastoralId);
+		//SELECT * FROM `pessoa` WHERE id NOT IN (SELECT pessoa_id from `pessoapastoral` where pastoral_id = 9 GROUP BY pessoa_id)
 	}
 }

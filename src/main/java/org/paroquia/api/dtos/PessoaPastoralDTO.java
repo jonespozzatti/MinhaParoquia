@@ -7,7 +7,7 @@ import org.paroquia.api.enums.TipoParticipantePastoral;
 public class PessoaPastoralDTO {
 
 	private Long id;
-	private TipoParticipantePastoral tipoParticipantePastoral;
+	private TipoParticipantePastoral tipoParticipantePastoral = TipoParticipantePastoral.INTEGRANTE;
 	private Long pastoral_id;
 	private Long pessoa_id;
 	

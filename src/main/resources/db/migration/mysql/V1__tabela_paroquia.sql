@@ -31,6 +31,8 @@ alter table endereco modify id bigint not null AUTO_INCREMENT;
     
     create table matricula (
        id bigint not null,
+       	data_atualizacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
+        data_criacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
         observacao varchar(255),
         situacao_matricula integer,
         tipo_pessoa integer not null,
@@ -56,11 +58,12 @@ alter table paroquia modify id bigint not null AUTO_INCREMENT;
  
  create table noticia (
        id bigint not null,
+       ativo boolean default true not null,
+       data_apresentacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
        data_atualizacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
         data_criacao timestamp not null DEFAULT CURRENT_TIMESTAMP,
         descricao varchar(255) not null,
         nome varchar(255) not null,
-        turma binary(255),
         paroquia_id bigint not null,
         primary key (id)
     )ENGINE=InnoDB DEFAULT CHARSET=utf8;

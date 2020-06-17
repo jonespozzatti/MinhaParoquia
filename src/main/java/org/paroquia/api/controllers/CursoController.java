@@ -16,15 +16,22 @@ import org.paroquia.api.sevices.ParoquiaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -38,6 +45,9 @@ public class CursoController {
 	
 	@Autowired
 	private ParoquiaService paroquiaService;
+	
+	@Value("${paginacao.qtd_por_pagina}")
+	private int qtdPorPagina;
 	
 	public CursoController() {
 		
@@ -55,7 +65,7 @@ public class CursoController {
 		
 		log.info("Cadastrando um curso: {}", cursoDTO.toString());
 		Response<CursoDTO> response = new Response<CursoDTO>();
-		
+			
 		validarDadosExistentes(cursoDTO, result);
 		Curso curso = this.converterDtoParaCurso(cursoDTO);
 		
@@ -114,6 +124,28 @@ public class CursoController {
 	}
 	
 	/**
+	 * Remove um curso por ID.
+	 * 
+	 * @param id
+	 * @return ResponseEntity<Response<String>>
+	 */
+	@DeleteMapping(value = "/{id}")
+	public ResponseEntity<Response<String>> remover(@PathVariable("id") Long id) {
+		log.info("Removendo a postoral id: {}", id);
+		Response<String> response = new Response<String>();
+		Optional<Curso> curso = this.cursoService.buscarCursoPorId(id);
+
+		if (!curso.isPresent()) {
+			log.info("Erro ao remover a curso ID: {} inválido.", id);
+			response.getErrors().add("Erro ao remover um curso. Registro não encontrado para o id " + id);
+			return ResponseEntity.badRequest().body(response);
+		}
+
+		this.cursoService.remover(id);
+		return ResponseEntity.ok(new Response<String>());
+	}
+	
+	/**
 	 * Retorna uma curso pelo id.
 	 * 
 	 * @param id
@@ -166,6 +198,38 @@ public class CursoController {
 		}
 		
 		response.setData(pastoraisDto);
+		return ResponseEntity.ok(response);
+	}
+	
+	/**
+	 * Retorna a listagem de Cursos de um paróquia paginada.
+	 * 
+	 * @param paroquiaID
+	 * @return ResponseEntity<Response<CursoDTO>>
+	 */
+	@GetMapping(value = "/paroquia/pag/{paroquiaId}")
+	public ResponseEntity<Response<Page<CursoDTO>>> listarCursoPorParoquiaPaginado(
+			@PathVariable("paroquiaId") Long paroquiaId,
+			@RequestParam(value = "pag", defaultValue = "0") int pag,
+			@RequestParam(value = "ord", defaultValue = "nome") String ord,
+			@RequestParam(value = "dir", defaultValue = "ASC") String dir) {
+		log.info("Buscando curso por ID da paróquia: {}, página: {}", paroquiaId, pag);
+		Response<Page<CursoDTO>> response = new Response<Page<CursoDTO>>();
+
+		
+		Page<Curso> cursos = this.cursoService
+				.listarCursoPorParoquiaPaginado(paroquiaId, PageRequest.of(pag, this.qtdPorPagina, Sort.by(Direction.valueOf(dir),ord)));
+		
+		if (cursos.isEmpty()) {
+			log.info("Nenhuma curso encontrada para a paróquia de id: {}", paroquiaId);
+			response.getErrors().add("Nenhuma cursos encontrada para a paróquia de id " + paroquiaId);
+			return ResponseEntity.badRequest().body(response);
+		}
+		
+		Page<CursoDTO> cursosDto = (Page<CursoDTO>) cursos
+				.map(curso -> this.converterParaCursoDto(curso));
+				
+		response.setData(cursosDto);
 		return ResponseEntity.ok(response);
 	}
 	

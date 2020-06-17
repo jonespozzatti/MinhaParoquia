@@ -199,7 +199,7 @@ public class Pessoa implements Serializable {
 	}
 
 
-	@OneToMany(mappedBy = "pessoa", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "pessoa", fetch = FetchType.LAZY)
 	public List<PessoaPastoral> getPastorais() {
 		return pastorais;
 	}

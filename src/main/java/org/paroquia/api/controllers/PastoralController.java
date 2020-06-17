@@ -30,6 +30,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -81,8 +82,8 @@ public class PastoralController {
 		Pastoral pastoral = this.converterDtoParaPastoral(pastoralDTO, result);
 		
 		Optional<Pessoa> pessoaCoordenador = null;
-		if (pastoralDTO.getCoordenadorPastoralId() != null) {
-			pessoaCoordenador = this.pessoaService.buscarPorId(pastoralDTO.getCoordenadorPastoralId());
+		if (pastoralDTO.getCoordenadorId() != null) {
+			pessoaCoordenador = this.pessoaService.buscarPorId(pastoralDTO.getCoordenadorId());
 			if (!pessoaCoordenador.isPresent()) {
 				result.addError(new ObjectError("pastoral", "Coordenador não encontrado."));
 				
@@ -134,6 +135,28 @@ public class PastoralController {
 		response.setData(this.converterParaPastoralDto(pastoral.get()));
 
 		return ResponseEntity.ok(response);
+	}
+	
+	/**
+	 * Remove uma postoral por ID.
+	 * 
+	 * @param id
+	 * @return ResponseEntity<Response<String>>
+	 */
+	@DeleteMapping(value = "/{id}")
+	public ResponseEntity<Response<String>> remover(@PathVariable("id") Long id) {
+		log.info("Removendo a postoral id: {}", id);
+		Response<String> response = new Response<String>();
+		Optional<Pastoral> pastoral = this.pastoralService.buscarPorId(id);
+
+		if (!pastoral.isPresent()) {
+			log.info("Erro ao remover a pastoral ID: {} inválido.", id);
+			response.getErrors().add("Erro ao remover uma pastoral. Registro não encontrado para o id " + id);
+			return ResponseEntity.badRequest().body(response);
+		}
+
+		this.pastoralService.remover(id);
+		return ResponseEntity.ok(new Response<String>());
 	}
 	
 	/**
@@ -236,13 +259,13 @@ public class PastoralController {
 			throws NoSuchAlgorithmException {
 		pastoral.setDescricao(pastoralDTO.getDescricao());
 
-		if (!pastoral.getEmail().equals(pastoral.getEmail())) {
+		if (!pastoral.getEmail().equals(pastoralDTO.getEmail())) {
 			this.pastoralService.buscarPorEmail(pastoralDTO.getEmail())
 					.ifPresent(func -> result.addError(new ObjectError("email", "Email já existente.")));
 			pastoral.setEmail(pastoralDTO.getEmail());
 		}
 		
-		pastoral.setNome(pastoral.getNome());
+		pastoral.setNome(pastoralDTO.getNome());
 
 	}
 	

@@ -102,7 +102,7 @@ public class Pastoral implements Serializable {
 		this.paroquia = paroquia;
 	}
 	
-	@OneToMany(mappedBy = "pastoral", fetch = FetchType.LAZY,  cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "pastoral", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	public List<PessoaPastoral> getParticipantes() {
 		return participantes;
 	}

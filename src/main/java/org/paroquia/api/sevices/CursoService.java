@@ -8,6 +8,8 @@ import org.paroquia.api.repositories.CursoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -35,5 +37,14 @@ public class CursoService {
 	public Optional<Curso> buscarPorNome(String nome) {
 		log.info("Buscando curso pelo nome ", nome);
 		return Optional.ofNullable(cursoRepository.findByNome(nome));
+	}
+	
+	public Page<Curso> listarCursoPorParoquiaPaginado(Long paroquiaID, PageRequest pageRequest) {
+		log.info("Listando cursos paginado pela paroquiaID ", paroquiaID);
+		return this.cursoRepository.findByParoquiaId(paroquiaID, pageRequest);
+	}
+	
+	public void remover(Long id) {
+		cursoRepository.deleteById(id);
 	}
 }

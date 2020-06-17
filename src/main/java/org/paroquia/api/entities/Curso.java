@@ -80,7 +80,7 @@ public class Curso implements Serializable{
 		this.dataAtualizacao = dataAtualizacao;
 	}
 	
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name="paroquia_id", nullable = false)
 	public Paroquia getParoquia() {
 		return paroquia;

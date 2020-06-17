@@ -1,5 +1,6 @@
 package org.paroquia.api.controllers;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import org.paroquia.api.dtos.PessoaPastoralDTO;
 import org.paroquia.api.entities.Pastoral;
 import org.paroquia.api.entities.Pessoa;
 import org.paroquia.api.entities.PessoaPastoral;
+import org.paroquia.api.enums.TipoParticipantePastoral;
 import org.paroquia.api.responses.Response;
 import org.paroquia.api.sevices.PastoralService;
 import org.paroquia.api.sevices.PessoaPastoralService;
@@ -30,10 +32,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/pessoapastoral")
@@ -56,8 +62,8 @@ public class PessoaPastoralController {
 	/**
 	 * Cadastra uma nova pastoral de um paróquia.
 	 * 
-	 * @param paroquiaID
-	 * @return ResponseEntity<Response<ParoquiaDTO>>
+	 * @param PessoaPastoralDTO pessoaPastoralDTO
+	 * @return ResponseEntity<Response<PessoaPastoralDTO>>
 	 */
 	@PostMapping
 	public ResponseEntity<Response<PessoaPastoralDTO>> incluirPessoaPastoral(@Valid @RequestBody PessoaPastoralDTO pessoaPastoralDTO,
@@ -85,6 +91,40 @@ public class PessoaPastoralController {
 		
 		return ResponseEntity.ok(response);
 	}
+	
+	/**
+	 * Atualiza os dados de um membro da pastoral.
+	 * 
+	 * @param id
+	 * @param PessoaPastoralDTO pessoaPastoralDTO
+	 * @param result
+	 * @return ResponseEntity<Response<PessoaPastoralDTO>>
+	 * @throws NoSuchAlgorithmException
+	 */
+	@PutMapping(value = "/{id}")
+	public ResponseEntity<Response<PessoaPastoralDTO>> atualizar(@PathVariable("id") Long id,
+			@Valid @RequestBody PessoaPastoralDTO pessoaPastoralDTO, BindingResult result) throws NoSuchAlgorithmException {
+		log.info("Atualizando Pessoa Pastoral: {}", pessoaPastoralDTO.toString());
+		Response<PessoaPastoralDTO> response = new Response<PessoaPastoralDTO>();
+
+		Optional<PessoaPastoral> pessoaPastoral = this.pessoaPastoralService.buscarPorId(id);
+		if (!pessoaPastoral.isPresent()) {
+			result.addError(new ObjectError("pessoaPastoral", "PessoaPastoral não encontrada."));
+		}
+
+		pessoaPastoral.get().setTipoParticipantePastoral(pessoaPastoralDTO.getTipoParticipantePastoral());
+
+		if (result.hasErrors()) {
+			log.error("Erro validando pessoaPastoral: {}", result.getAllErrors());
+			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
+			return ResponseEntity.badRequest().body(response);
+		}
+
+		this.pessoaPastoralService.salvar(pessoaPastoral.get());
+		response.setData(this.converterParaPessoaPastoralDto(pessoaPastoral.get()));
+
+		return ResponseEntity.ok(response);
+	}
 
 	/**
 	 * Remove uma pessoa da postoral por ID.
@@ -101,6 +141,9 @@ public class PessoaPastoralController {
 		if (!pessoaPastoral.isPresent()) {
 			log.info("Erro ao remover uma pessoa da pastoral ID: {} ser inválido.", id);
 			response.getErrors().add("Erro ao remover uma pessoa da pastoral. Registro não encontrado para o id " + id);
+			return ResponseEntity.badRequest().body(response);
+		}else if (TipoParticipantePastoral.COORDENADOR.equals(pessoaPastoral.get().getTipoParticipantePastoral())) {
+			response.getErrors().add("Erro: Altere sua função antes de excluir.");
 			return ResponseEntity.badRequest().body(response);
 		}
 
@@ -128,6 +171,29 @@ public class PessoaPastoralController {
 		
 		return ResponseEntity.ok(response);
 	}
+	/**
+	 * Retorna a listagem de pessoas que não pertencem a pastoral.
+	 * 
+	 * @param pastoralID
+	 * @return ResponseEntity<Response<PessoaPastoralDTO>>
+	 * @throws JsonProcessingException 
+	 */
+	@GetMapping(value = "/naopastoral/{pastoralId}")
+	public ResponseEntity<String> listarPessoasNaoPertencemPastoral(
+			@PathVariable("pastoralId") Long pastoralId) throws JsonProcessingException {
+		log.info("Buscando pessoas que não pertence a pastoral de ID: {}", pastoralId);
+		
+		List<Pessoa> listaPessoas = this.pessoaService.listarPessoasNaoPertencemPastoral(pastoralId);
+		
+		List<MembroDTO> membrosDto= new ArrayList<MembroDTO>();
+		
+		for (Pessoa pessoa : listaPessoas) {
+			membrosDto.add(this.converterParaMembrolDto(pessoa));	
+		}
+		String entity = new ObjectMapper().writeValueAsString(membrosDto);
+		
+		return ResponseEntity.ok(entity);
+	}
 	
 	@GetMapping(value = "/pastoral/pag/{pastoralId}")
 	public ResponseEntity<Response<Page<MembroDTO>>> listarPessoasPorPastoralPaginado(
@@ -149,6 +215,21 @@ public class PessoaPastoralController {
 		return ResponseEntity.ok(response);
 	}
 	
+	/**
+	 * Retorna lista de funcoes dos membros da pastoral.
+	 * 
+	 * @param 
+	 * @return ResponseEntity<Response<List<TipoParticipantePastoral>>>
+	 */
+	@GetMapping(value = "/funcao")
+	public ResponseEntity<Response<TipoParticipantePastoral[]>> listarTipoParticipantePastoral() {
+		
+		Response<TipoParticipantePastoral[]> response = new Response<TipoParticipantePastoral[]>();		
+		response.setData(TipoParticipantePastoral.values());
+					
+		return ResponseEntity.ok(response);
+	}
+	
 	
 	private MembroDTO converterParaMembrolDto(PessoaPastoral pessoaPastoral) {
 		MembroDTO membroDTO = new MembroDTO();
@@ -157,6 +238,14 @@ public class PessoaPastoralController {
 		membroDTO.setPessoaId(pessoaPastoral.getPessoa().getId());
 		membroDTO.setTipoParticipantePastoral(pessoaPastoral.getTipoParticipantePastoral());
 		membroDTO.setPastoralId(pessoaPastoral.getPastoral().getId());
+		return membroDTO;
+	}
+	
+	private MembroDTO converterParaMembrolDto(Pessoa pessoa) {
+		MembroDTO membroDTO = new MembroDTO();
+		membroDTO.setId(Optional.of(pessoa.getId()));
+		membroDTO.setNome(pessoa.getNome());
+		membroDTO.setPessoaId(pessoa.getId());
 		return membroDTO;
 	}
 	

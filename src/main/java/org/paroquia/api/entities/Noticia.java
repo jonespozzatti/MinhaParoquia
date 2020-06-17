@@ -12,6 +12,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 @Entity
@@ -23,7 +25,8 @@ public class Noticia implements Serializable{
 	private Long id;
 	private String nome;
 	private String descricao;
-	private Integer periodo;
+	private Date dataApresentacao;
+	private Boolean ativo;
 	private Date dataCriacao;
 	private Date dataAtualizacao;
 	private Paroquia paroquia;
@@ -59,13 +62,22 @@ public class Noticia implements Serializable{
 	public void setDescricao(String descricao) {
 		this.descricao = descricao;
 	}
-	@Column(name = "periodo", nullable = false)
-	public Integer getPeriodo() {
-		return periodo;
+	@Column(name = "data_apresentacao", nullable = false)
+	public Date getDataApresentacao() {
+		return dataApresentacao;
 	}
 
-	public void setPeriodo(Integer periodo) {
-		this.periodo = periodo;
+	public void setDataApresentacao(Date dataApresentacao) {
+		this.dataApresentacao = dataApresentacao;
+	}
+
+	@Column(name = "ativo", nullable = false, columnDefinition = "boolean default true" )
+	public Boolean getAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(Boolean ativo) {
+		this.ativo = ativo;
 	}
 
 	@Column(name = "data_criacao", nullable = false)
@@ -95,11 +107,24 @@ public class Noticia implements Serializable{
 	public void setParoquia(Paroquia paroquia) {
 		this.paroquia = paroquia;
 	}
+	
+	@PreUpdate
+    public void preUpdate() {
+        dataAtualizacao = new Date();
+    }
+     
+    @PrePersist
+    public void prePersist() {
+        final Date atual = new Date();
+        dataCriacao = atual;
+        dataAtualizacao = atual;
+    }
 
 	@Override
 	public String toString() {
-		return "Noticia [id=" + id + ", nome=" + nome + ", descricao=" + descricao + ", dataCriacao=" + dataCriacao
-				+ ", dataAtualizacao=" + dataAtualizacao + ", paroquia=" + paroquia + "]";
+		return "Noticia [id=" + id + ", nome=" + nome + ", descricao=" + descricao + ", dataApresentacao="
+				+ dataApresentacao + ", ativo=" + ativo + ", dataCriacao=" + dataCriacao + ", dataAtualizacao="
+				+ dataAtualizacao + ", paroquia=" + paroquia + "]";
 	}
 
 }

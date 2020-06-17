@@ -1,6 +1,7 @@
 package org.paroquia.api.entities;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,6 +12,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import org.paroquia.api.enums.SituacaoMatricula;
@@ -28,6 +31,8 @@ public class Matricula implements Serializable {
 	private String observacao;
 	private Turma turma;
 	private Pessoa pessoa;
+	private Date dataCriacao;
+	private Date dataAtualizacao;
 	
 	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -77,6 +82,37 @@ public class Matricula implements Serializable {
 	public void setPessoa(Pessoa pessoa) {
 		this.pessoa = pessoa;
 	}
+	
+	@Column(name = "data_criacao", nullable = false)
+	public Date getDataCriacao() {
+		return dataCriacao;
+	}
+	
+	public void setDataCriacao(Date dataCriacao) {
+		this.dataCriacao = dataCriacao;
+	}
+	
+	@Column(name = "data_atualizacao", nullable = false)
+	public Date getDataAtualizacao() {
+		return dataAtualizacao;
+	}
+	
+	public void setDataAtualizacao(Date dataAtualizacao) {
+		this.dataAtualizacao = dataAtualizacao;
+	}
+	
+	@PreUpdate
+    public void preUpdate() {
+        dataAtualizacao = new Date();
+    }
+     
+    @PrePersist
+    public void prePersist() {
+        final Date atual = new Date();
+        dataCriacao = atual;
+        dataAtualizacao = atual;
+    }
+
 	@Override
 	public String toString() {
 		return "Matricula [id=" + id + ", tipoPessoa=" + tipoPessoa + ", situacaoMatricula=" + situacaoMatricula
