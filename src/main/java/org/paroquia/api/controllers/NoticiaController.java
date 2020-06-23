@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import org.paroquia.api.dtos.CardDTO;
 import org.paroquia.api.dtos.NoticiaDTO;
 import org.paroquia.api.entities.Noticia;
 import org.paroquia.api.entities.Paroquia;
@@ -185,16 +186,16 @@ private static final Logger log = LoggerFactory.getLogger(NoticiaController.clas
 		Response<List<NoticiaDTO>> response = new Response<List<NoticiaDTO>>();
 
 		
-		List<Noticia> pastorais = this.noticiaService.listarNoticiaPorParoquia(paroquiaId);
+		List<Noticia> noticias = this.noticiaService.listarNoticiaPorParoquia(paroquiaId);
 		
-		if (pastorais.isEmpty()) {
+		if (noticias.isEmpty()) {
 			log.info("Nenhuma noticia encontrada para a paróquia de id: {}", paroquiaId);
 			response.getErrors().add("Nenhuma noticia encontrada para a paróquia de id " + paroquiaId);
 			return ResponseEntity.badRequest().body(response);
 		}
 		
 		List<NoticiaDTO> pastoraisDto = new ArrayList<NoticiaDTO>(0);
-		for (Noticia noticia : pastorais) {
+		for (Noticia noticia : noticias) {
 			pastoraisDto.add(this.converterParaNoticiaDto(noticia));			
 		}
 		
@@ -202,6 +203,38 @@ private static final Logger log = LoggerFactory.getLogger(NoticiaController.clas
 		return ResponseEntity.ok(response);
 	}
 	
+	/**
+	 * Retorna a listagem de avisos de um paróquia ativos.
+	 * 
+	 * @param paroquiaID
+	 * @return ResponseEntity<Response<CardDTO>>
+	 */
+	@GetMapping(value = "/card/{paroquiaId}")
+	public ResponseEntity<Response<List<CardDTO>>> listarAvisoPorParoquiaId(
+			@PathVariable("paroquiaId") Long paroquiaId,
+			@RequestParam(value = "matches", defaultValue = "true") Boolean matches) {
+		log.info("Buscando noticia por ID da paróquia: {}", paroquiaId);
+		Response<List<CardDTO>> response = new Response<List<CardDTO>>();
+
+		
+		List<Noticia> noticias = this.noticiaService.listarNoticiaPorParoquia(paroquiaId);
+		
+		if (noticias.isEmpty()) {
+			log.info("Nenhuma noticia encontrada para a paróquia de id: {}", paroquiaId);
+			response.getErrors().add("Nenhuma noticia encontrada para a paróquia de id " + paroquiaId);
+			return ResponseEntity.badRequest().body(response);
+		}
+		
+		List<CardDTO> cardsDTO = new ArrayList<CardDTO>(0);
+		for (Noticia noticia : noticias) {
+			cardsDTO.add(this.converterParaCardDto(noticia, matches));
+			matches = Boolean.TRUE;
+		}
+		
+		response.setData(cardsDTO);
+		return ResponseEntity.ok(response);
+	}
+
 	/**
 	 * Retorna a listagem de Noticias de um paróquia paginada.
 	 * 
@@ -270,6 +303,20 @@ private static final Logger log = LoggerFactory.getLogger(NoticiaController.clas
 		dto.setParoquiaId(noticia.getParoquia().getId());
 		dto.setDataApresentacaoString(noticia.getDataApresentacao(), "dd/MM/yyyy");
 		dto.setAtivo(noticia.getAtivo());
+		return dto;
+	}
+	
+	/**
+	 * Converte uma entidade noticia para cardDto
+	 * @param noticia
+	 * @return cardDto
+	 */
+	private CardDTO converterParaCardDto(Noticia noticia, Boolean matches) {
+		CardDTO dto = new CardDTO();
+		dto.setTitle(noticia.getNome());
+		dto.setDescricao(noticia.getDescricao());
+		dto.setRows(1);
+		dto.setCols(matches ? 1 : 2);
 		return dto;
 	}
 	

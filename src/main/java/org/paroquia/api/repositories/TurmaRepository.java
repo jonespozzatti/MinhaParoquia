@@ -6,6 +6,8 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 import org.paroquia.api.entities.Turma;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,5 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 			query = "SELECT turma FROM Turma turma WHERE turma.curso.id = :cursoId") })
 public interface TurmaRepository extends JpaRepository<Turma, Long> {
 	List<Turma> findByCursoId(@Param("cursoId") Long cursoId);
+	Page<Turma> findByCursoId(@Param("cursoId") Long paroquiaId, Pageable pageable);
 
 }

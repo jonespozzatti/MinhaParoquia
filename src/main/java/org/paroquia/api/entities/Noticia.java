@@ -3,7 +3,6 @@ package org.paroquia.api.entities;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -98,7 +97,7 @@ public class Noticia implements Serializable{
 		this.dataAtualizacao = dataAtualizacao;
 	}
 
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name="paroquia_id", nullable = false)
 	public Paroquia getParoquia() {
 		return paroquia;

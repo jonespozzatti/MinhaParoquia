@@ -22,6 +22,11 @@ import org.paroquia.api.sevices.TurmaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -31,6 +36,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -49,6 +55,9 @@ public class TurmaController {
 	
 	@Autowired
 	private MatriculaService matriculaService;
+	
+	@Value("${paginacao.qtd_por_pagina}")
+	private int qtdPorPagina;
 	
 	/**
 	 * Cadastra uma nova turma para a turma.
@@ -201,6 +210,39 @@ public class TurmaController {
 		return ResponseEntity.ok(response);
 	}
 	
+
+	/**
+	 * Retorna a listagem de Turmas de um curso paginada.
+	 * 
+	 * @param cursoId
+	 * @return ResponseEntity<Response<TurmaDTO>>
+	 */
+	@GetMapping(value = "/curso/pag/{cursoId}")
+	public ResponseEntity<Response<Page<TurmaDTO>>> listarTurmasPorCursoPaginado(
+			@PathVariable("cursoId") Long cursoId,
+			@RequestParam(value = "pag", defaultValue = "0") int pag,
+			@RequestParam(value = "ord", defaultValue = "descricao") String ord,
+			@RequestParam(value = "dir", defaultValue = "ASC") String dir) {
+		log.info("Buscando turmas por ID do curso: {}, página: {}", cursoId, pag);
+		Response<Page<TurmaDTO>> response = new Response<Page<TurmaDTO>>();
+
+		
+		Page<Turma> turmas = this.turmaService
+				.listarTurmasPorCursoPaginado(cursoId, PageRequest.of(pag, this.qtdPorPagina, Sort.by(Direction.valueOf(dir),ord)));
+		
+		if (turmas.isEmpty()) {
+			log.info("Nenhuma turma encontrada para o curso de id: {}", cursoId);
+			response.getErrors().add("Nenhuma turma encontrada para o curso de id " + cursoId);
+			return ResponseEntity.badRequest().body(response);
+		}
+		
+		Page<TurmaDTO> turmasDto = (Page<TurmaDTO>) turmas
+				.map(turma -> this.converterParaTurmaDto(turma));
+				
+		response.setData(turmasDto);
+		return ResponseEntity.ok(response);
+	}
+	
 	/**
 	 * Converte uma DTO para sua respectiva entidade.
 	 * 
@@ -237,6 +279,24 @@ public class TurmaController {
 		dto.setDataFimString(turma.getDataFim(), "yyyy-MM-dd");
 		dto.setDescricao(turma.getDescricao());
 		dto.setProfessorId(matricula.getPessoa().getId());
+		dto.setDiaSemana(turma.getDiaSemana());
+		dto.setHorarios(turma.getHorarios());
+		dto.setCursoId(turma.getCurso().getId());
+		return dto;
+	}
+	
+	/**
+	 * Converte uma entidade turma para seu respectivo DTO.
+	 * 
+	 * @param turma
+	 * @return turmaDTO
+	 */
+	private TurmaDTO converterParaTurmaDto(Turma turma) {
+		TurmaDTO dto = new TurmaDTO();
+		dto.setId(turma.getId());
+		dto.setDataInicioString(turma.getDataInicio(), "yyyy-MM-dd");
+		dto.setDataFimString(turma.getDataFim(), "yyyy-MM-dd");
+		dto.setDescricao(turma.getDescricao());
 		dto.setDiaSemana(turma.getDiaSemana());
 		dto.setHorarios(turma.getHorarios());
 		dto.setCursoId(turma.getCurso().getId());

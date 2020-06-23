@@ -8,6 +8,8 @@ import org.paroquia.api.repositories.TurmaRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,6 +32,11 @@ public class TurmaService {
 	public List<Turma> listarTurmaPorCurso(Long cursoId) {
 		log.info("Listando turmas do curso ID ", cursoId);
 		return turmaRepository.findByCursoId(cursoId);
+	}
+	
+	public Page<Turma> listarTurmasPorCursoPaginado(Long cursoID, PageRequest pageRequest) {
+		log.info("Listando turmas paginado pelo cursoID ", cursoID);
+		return this.turmaRepository.findByCursoId(cursoID, pageRequest);
 	}
 
 }
